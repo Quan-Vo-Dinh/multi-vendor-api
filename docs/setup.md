@@ -6,3 +6,7 @@ npm i prisma -D
 npx prisma init
 
 npx prisma dp push
+
+npm i @antfu/eslint-config
+
+npm i husky
