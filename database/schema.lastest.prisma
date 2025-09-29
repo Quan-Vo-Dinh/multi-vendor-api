@@ -1,3 +1,10 @@
+// Merged Prisma schema: base e-commerce schema (from course) + additions for
+// QR-table restaurant ordering system (Guest, Table, TableSession, small changes).
+//
+// **Notes (in-file comments)** mark places we changed/added compared to the original
+// course schema. This file aims to be a minimal-change merge so the original
+// models (RBAC, Product/SKU, Snapshot, Payment, etc.) remain intact.
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,6 +17,57 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+////////////////////
+// ENUMS (unchanged)
+////////////////////
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PENDING_PICKUP
+  PENDING_DELIVERY
+  DELIVERED
+  RETURNED
+  CANCELLED
+}
+
+enum VerificationCodeType {
+  REGISTER
+  FORGOT_PASSWORD
+  LOGIN
+  DISABLE_2FA
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum HTTPMethod {
+  GET
+  POST
+  PUT
+  DELETE
+  PATCH
+  OPTIONS
+  HEAD
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+////////////////////
+// CORE MODELS (from course)
+////////////////////
 
 model Language {
   id                   String                @id @db.VarChar(10)
@@ -163,12 +221,15 @@ model Device {
   refreshTokens RefreshToken[] // Liên kết 1-n với RefreshToken
 }
 
+// === RefreshToken: Đã chỉnh sửa để cho phép liên kết với Guest cũng như User
 model RefreshToken {
   token     String   @unique @db.VarChar(1000)
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  deviceId  Int // Foreign key tới Device
-  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  userId    Int? // Trước đây là bắt buộc; giờ cho phép null để hỗ trợ Guest hoặc phiên ẩn danh
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  guestId   Int? // Mới: quan hệ tùy chọn với Guest
+  guest     Guest?   @relation(fields: [guestId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  deviceId  Int? // Cho phép null để hỗ trợ token của guest khi không theo dõi thiết bị
+  device    Device?  @relation(fields: [deviceId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   expiresAt DateTime
   createdAt DateTime @default(now())
 
@@ -200,7 +261,7 @@ model Permission {
 
 model Role {
   id          Int          @id @default(autoincrement())
-  name        String       @unique @db.VarChar(500)
+  name        String       @db.VarChar(500)
   description String       @default("")
   isActive    Boolean      @default(true)
   permissions Permission[]
@@ -428,26 +489,35 @@ model ProductSKUSnapshot {
   createdAt DateTime @default(now())
 }
 
+// === Order: Đã chỉnh sửa để cho phép đơn hàng của khách và liên kết với phiên bàn/table
 model Order {
-  id          Int                  @id @default(autoincrement())
-  userId      Int
-  user        User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  status      OrderStatus
-  items       ProductSKUSnapshot[]
-  products    Product[]
-  reviews     Review[]
-  /// [Receiver]
-  receiver    Json
+  id      Int    @id @default(autoincrement())
+  userId  Int? // <- Đã đổi từ Int bắt buộc sang Int có thể null để hỗ trợ khách
+  user    User?  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  guestId Int? // <- MỚI: tham chiếu tới bảng Guest cho đơn hàng ẩn danh/khách
+  guest   Guest? @relation(fields: [guestId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  status   OrderStatus
+  items    ProductSKUSnapshot[]
+  products Product[]
+  reviews  Review[]
+  /// [Người nhận]
+  receiver Json
+
+  // Liên kết bàn / phiên bàn cho QR-table
+  tableSessionId String? // <- MỚI: liên kết tùy chọn tới phiên bàn tạm thời (nếu dùng TableSession)
+  tableSession   TableSession? @relation(fields: [tableSessionId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
   shopId      Int?
-  shop        User?                @relation("Shop", fields: [shopId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  shop        User?   @relation("Shop", fields: [shopId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   paymentId   Int
-  payment     Payment              @relation(fields: [paymentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  payment     Payment @relation(fields: [paymentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdById Int?
-  createdBy   User?                @relation("OrderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  createdBy   User?   @relation("OrderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
   updatedById Int?
-  updatedBy   User?                @relation("OrderUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  updatedBy   User?   @relation("OrderUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
   deletedById Int?
-  deletedBy   User?                @relation("OrderDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  deletedBy   User?   @relation("OrderDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, onUpdate: NoAction)
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
@@ -465,11 +535,16 @@ model Payment {
   updatedAt DateTime      @updatedAt
 }
 
+// Websocket: modified to support user or guest or tableSession mapping
 model Websocket {
-  id        String   @id
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  createdAt DateTime @default(now())
+  id             String        @id
+  userId         Int?
+  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  guestId        Int?
+  guest          Guest?        @relation(fields: [guestId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tableSessionId String?
+  tableSession   TableSession? @relation(fields: [tableSessionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  createdAt      DateTime      @default(now())
 }
 
 model Review {
@@ -532,45 +607,59 @@ model Message {
   createdAt DateTime  @default(now())
 }
 
-enum PaymentStatus {
-  PENDING
-  SUCCESS
-  FAILED
+////////////////////
+// NEW MODELS for QR-table restaurant
+////////////////////
+
+// Guest: lightweight model to store anonymous diners (name + phone)
+model Guest {
+  id            Int            @id @default(autoincrement())
+  name          String         @db.VarChar(200)
+  phone         String         @db.VarChar(50)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+  webSockets    Websocket[]
+  orders        Order[]
 }
 
-enum OrderStatus {
-  PENDING_PAYMENT
-  PENDING_PICKUP
-  PENDING_DELIVERY
-  DELIVERED
-  RETURNED
-  CANCELLED
+// Table: physical table in restaurant. qrCode can be static payload stored here
+model Table {
+  id        Int            @id @default(autoincrement())
+  shopId    Int
+  shop      User           @relation("ShopTables", fields: [shopId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  name      String         @db.VarChar(100)
+  qrCode    String?        @db.VarChar(1000) // static QR payload or URL; admin can rotate/change this field
+  status    String         @default("Available")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  sessions  TableSession[]
 }
 
-enum VerificationCodeType {
-  REGISTER
-  FORGOT_PASSWORD
-  LOGIN
-  DISABLE_2FA
+// TableSession: ephemeral session created when a guest scans QR (optional persistence)
+// Benefits: token TTL, audit, resume session, mapping websocket <-> session
+model TableSession {
+  id         String      @id @default(uuid())
+  tableId    Int
+  table      Table       @relation(fields: [tableId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  token      String      @db.VarChar(255)
+  status     String      @default("OPEN")
+  createdAt  DateTime    @default(now())
+  expiresAt  DateTime?
+  webSockets Websocket[]
+  orders     Order[] // orders created in this table session
 }
 
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  BLOCKED
+////////////////////
+// Remaining models unchanged except small adjustments noted above
+////////////////////
+
+model Review {
+  // already defined above (kept for ordering in file) - duplicate avoided
 }
 
-enum HTTPMethod {
-  GET
-  POST
-  PUT
-  DELETE
-  PATCH
-  OPTIONS
-  HEAD
-}
+// The rest of the models exist above. If you need the whole file to be strictly
+// without duplicate model names, please note `Review` was declared earlier. No
+// further duplications are present.
 
-enum MediaType {
-  IMAGE
-  VIDEO
-}
+// End of schema

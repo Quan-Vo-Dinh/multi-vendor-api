@@ -1,6 +1,6 @@
 import { SetMetadata } from '@nestjs/common'
 
-import { AuthType, ConditionGuardType } from '../constants/auth.constant'
+import { AuthType, ConditionGuardType } from 'src/shared/constants/auth.constant'
 
 // gắn metadata vào route để xác định loại auth và điều kiện để guard và interceptor truy xuất và sử dụng
 // sử dụng bằng AUTH_TYPE_KEY
