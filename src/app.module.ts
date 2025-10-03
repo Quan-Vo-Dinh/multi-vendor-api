@@ -24,6 +24,10 @@ import { SharedModule } from './shared/shared.module'
       provide: APP_FILTER, // show lỗi khi nó serialize bị lỗi
       useClass: HttpExceptionFilter,
     },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
   ],
 })
 export class AppModule {}
