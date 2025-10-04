@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ActionsOnSaveFileDocumentManagerImpl">
+    <option name="actions">
+      <set>
+        <option value="ReformatCode" />
+        <option value="OptimizeImports" />
+      </set>
+    </option>
+    <option name="REFORMAT_ON_SAVE" value="true" />
+    <option name="OPTIMIZE_IMPORTS_ON_SAVE" value="true" />
+    <option name="ESLINT_FIX_ON_SAVE" value="true" />
+  </component>
+</project>
+

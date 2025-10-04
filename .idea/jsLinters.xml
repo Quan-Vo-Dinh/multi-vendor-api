@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JSLinterConfiguration">
+    <option name="eslint">
+      <EslintConfiguration>
+        <option name="configType" value="CONFIG_FILE" />
+        <option name="configPath" value="$PROJECT_DIR$/eslint.config.mjs" />
+        <option name="interpreterRef" value="$USER_HOME$/.nvm/versions/node/v22.18.0/bin/node" />
+        <option name="packagePath" value="$PROJECT_DIR$/node_modules/eslint" />
+        <option name="eslintrcPath" value="" />
+        <option name="workingDirectory" value="$PROJECT_DIR$" />
+        <option name="nodeOptions" value="" />
+        <option name="additionalRulesDirectory" value="" />
+        <option name="lintOnSave" value="true" />
+        <option name="fixOnSave" value="true" />
+        <option name="showErrors" value="true" />
+        <option name="showWarnings" value="true" />
+      </EslintConfiguration>
+    </option>
+  </component>
+</project>

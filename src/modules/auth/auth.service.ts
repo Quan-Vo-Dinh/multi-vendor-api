@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common'
 
-import { RegisterBodyType } from 'src/modules/auth/model/auth.model'
+import { RegisterBodyType, SendOtpBodyType } from 'src/modules/auth/model/auth.model'
 import { AuthRepository } from 'src/modules/auth/repo/auth.repo'
 import { RolesService } from 'src/modules/auth/roles.service'
 import { isUniqueConstraintPrismaError } from 'src/shared/helpers'
@@ -26,17 +26,16 @@ export class AuthService {
         password: hashedPassword,
         roleId: clientRoleId,
       })
-      // return await this.authRepository.createUser({
-      //   ...body,
-      //   password: hashedPassword,
-      //   roleId: clientRoleId,
-      // })
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
         throw new ConflictException('Email or phone number already exists')
       }
       throw error
     }
+  }
+
+  sendOtp(body: SendOtpBodyType) {
+    return body
   }
 
   // async login(loginBodyDto: LoginBodyDto) {
