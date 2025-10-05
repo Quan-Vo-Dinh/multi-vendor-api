@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/.env">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/.env" />
+              <option name="originalContent" value="# Database&#10;DATABASE_URL=&quot;postgresql://vodinhquan:matkhaulagi2774@localhost:5432/ecom_dev?schema=public&quot;&#10;&#10;# JWT Tokens&#10;ACCESS_TOKEN_SECRET=&quot;your-super-secret-access-token-key-here&quot;&#10;REFRESH_TOKEN_SECRET=&quot;your-super-secret-refresh-token-key-here&quot;&#10;ACCESS_TOKEN_EXPIRATION=&quot;15m&quot;&#10;REFRESH_TOKEN_EXPIRATION=&quot;7d&quot;&#10;&#10;# API Security&#10;SECRET_API_KEY=&quot;your-secret-api-key-here&quot;&#10;&#10;# Hashing&#10;SALT_ROUNDS=&quot;10&quot;&#10;&#10;# Server&#10;PORT=&quot;3000&quot;&#10;NODE_ENV=&quot;development&quot;&#10;&#10;ADMIN_NAME='vo-dinh-quan'&#10;ADMIN_PASSWORD='vodinhquan'&#10;ADMIN_EMAIL='vodinhquan2707.it@gmail.com'&#10;ADMIN_PHONE_NUMBER=0347772774&#10;&#10;OTP_EXPIRATION_MINUTES=&quot;5m&quot;&#10;&#10;RESEND_API_KEY=re_Y2mALQTY_9zgN6p2Bhv58UvtQXZXFDkaG" />
+              <option name="updatedContent" value="# Database&#10;DATABASE_URL=&quot;postgresql://vodinhquan:matkhaulagi2774@localhost:5432/ecom_dev?schema=public&quot;&#10;&#10;# JWT Tokens&#10;ACCESS_TOKEN_SECRET=&quot;your-super-secret-access-token-key-here&quot;&#10;REFRESH_TOKEN_SECRET=&quot;your-super-secret-refresh-token-key-here&quot;&#10;ACCESS_TOKEN_EXPIRATION=&quot;15m&quot;&#10;REFRESH_TOKEN_EXPIRATION=&quot;7d&quot;&#10;&#10;# API Security&#10;SECRET_API_KEY=&quot;your-secret-api-key-here&quot;&#10;&#10;# Hashing&#10;SALT_ROUNDS=&quot;10&quot;&#10;&#10;# Server&#10;PORT=&quot;3000&quot;&#10;NODE_ENV=&quot;development&quot;&#10;&#10;ADMIN_NAME='vo-dinh-quan'&#10;ADMIN_PASSWORD='vodinhquan'&#10;ADMIN_EMAIL='vodinhquan2707.it@gmail.com'&#10;ADMIN_PHONE_NUMBER=0347772774&#10;&#10;OTP_EXPIRATION_MINUTES=&quot;5m&quot;&#10;&#10;RESEND_API_KEY=re_Y2mALQTY_9zgN6p2Bhv58UvtQXZXFDkaG" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

@@ -1,9 +1,15 @@
-import { ConflictException, Injectable } from '@nestjs/common'
+import { Injectable, UnprocessableEntityException } from '@nestjs/common'
+import { addMilliseconds } from 'date-fns'
+import ms from 'ms'
 
 import { RegisterBodyType, SendOtpBodyType } from 'src/modules/auth/model/auth.model'
 import { AuthRepository } from 'src/modules/auth/repo/auth.repo'
 import { RolesService } from 'src/modules/auth/roles.service'
-import { isUniqueConstraintPrismaError } from 'src/shared/helpers'
+import { envConfig } from 'src/shared/config'
+import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
+import { generateRandomCode, isUniqueConstraintPrismaError } from 'src/shared/helpers'
+import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
+import { EmailService } from 'src/shared/services/email.service'
 import { HashingService } from 'src/shared/services/hashing.service'
 
 @Injectable()
@@ -12,10 +18,31 @@ export class AuthService {
     private readonly authRepository: AuthRepository,
     private readonly hashingService: HashingService,
     private readonly rolesService: RolesService,
+    private readonly sharedUserRepository: SharedUserRepository,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(body: RegisterBodyType) {
     try {
+      const verificationCode = await this.authRepository.findVerificationCode({
+        email: body.email,
+        type: TypeOfVerificationCode.REGISTER,
+        code: body.code,
+      })
+
+      if (!verificationCode) {
+        throw new UnprocessableEntityException({
+          message: 'Invalid verification code',
+          path: ['code'],
+        })
+      }
+
+      if (verificationCode.expiresAt < new Date()) {
+        throw new UnprocessableEntityException({
+          message: 'Verification code has expired',
+        })
+      }
+
       const clientRoleId = await this.rolesService.getClientRoleId()
       const hashedPassword = await this.hashingService.hash(body.password)
 
@@ -28,14 +55,50 @@ export class AuthService {
       })
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
-        throw new ConflictException('Email or phone number already exists')
+        throw new UnprocessableEntityException({
+          field: 'email',
+          message: 'Email already exists',
+          path: ['email'],
+        })
       }
       throw error
     }
   }
 
-  sendOtp(body: SendOtpBodyType) {
-    return body
+  async sendOtp(body: SendOtpBodyType) {
+    //1. check email or phone number exists
+    const user = await this.sharedUserRepository.findUnique({ email: body.email })
+    if (body.type === TypeOfVerificationCode.REGISTER && user) {
+      throw new UnprocessableEntityException({
+        field: 'email',
+        message: 'Email already exists',
+        path: ['email'],
+      })
+    }
+    //2. generate otp
+    const otpCode = generateRandomCode()
+
+    const verificationCode = await this.authRepository.createVerificationCode({
+      code: otpCode,
+      email: body.email,
+      type: body.type,
+      expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRATION_MINUTES)),
+    })
+    //3. send otp to email or phone number
+    const result = await this.emailService.sendOtp({ email: body.email, code: otpCode })
+    if (result.error) {
+      console.log(result.error)
+      throw new UnprocessableEntityException({
+        message: 'Failed to send OTP email',
+        path: ['email'],
+      })
+    }
+    return {
+      message: 'OTP sent successfully',
+      verificationCodeId: verificationCode.id,
+      data: result.data,
+      error: result.error,
+    }
   }
 
   // async login(loginBodyDto: LoginBodyDto) {

@@ -1,25 +1,7 @@
 import { z } from 'zod'
 
-import { TypeOfVerificationCode, UserStatus } from 'src/shared/constants/auth.constant'
-
-export const UserSchema = z.object({
-  id: z.number().int().positive(),
-  email: z.email(),
-  name: z.string().min(1),
-  password: z.string().min(6), // adjust min length as needed
-  phoneNumber: z.string().min(10),
-  avatar: z.string().nullable(),
-  otpSecret: z.string().nullable(),
-  status: z.enum([UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.BLOCKED]).default(UserStatus.ACTIVE),
-  roleId: z.number().int().positive(),
-  createdById: z.number().int().positive().nullable(),
-  updatedById: z.number().int().positive().nullable(),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
-
-export type UserType = z.infer<typeof UserSchema>
+import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
+import { UserSchema } from 'src/shared/models/shared-user.model'
 
 export const RegisterBodySchema = UserSchema.pick({
   name: true,
@@ -29,6 +11,7 @@ export const RegisterBodySchema = UserSchema.pick({
 })
   .extend({
     confirmPassword: z.string().min(6),
+    code: z.string().min(1).max(6),
   })
   .strict()
   .superRefine(({ password, confirmPassword }, ctx) => {
@@ -45,7 +28,7 @@ export type RegisterBodyType = z.infer<typeof RegisterBodySchema>
 
 export const RegisterResSchema = UserSchema.omit({
   password: true,
-  totpSecret: true,
+  otpSecret: true,
 })
 
 export const VerificationCode = z.object({

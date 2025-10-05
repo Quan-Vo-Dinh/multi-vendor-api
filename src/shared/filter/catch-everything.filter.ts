@@ -25,7 +25,7 @@ export class CatchEverythingFilter implements ExceptionFilter {
     const responseBody = {
       statusCode: httpStatus,
       message,
-      timestamp: new Date().toISOString(),
+      // timestamp: new Date().toISOString(),
     }
 
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus)

@@ -1,3 +1,5 @@
+import { randomInt } from 'crypto'
+
 import { Prisma } from '@prisma/client'
 
 // Type Predicates for Prisma errors
@@ -24,4 +26,8 @@ export function isEmail(value: any): value is string {
 
 export function isNonEmptyString(value: any): value is string {
   return isString(value) && value.trim().length > 0
+}
+
+export const generateRandomCode = (): string => {
+  return randomInt(100000, 1000000).toString()
 }
