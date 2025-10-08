@@ -112,7 +112,7 @@ graph TB
 #### Multi-Layer Security Implementation
 
 ```mermaid
-graph LR
+graph BR
     subgraph SECURITY_LAYER["Security Stack"]
         A1["JWT Token System"]
         A2["Device Session Tracking"]
