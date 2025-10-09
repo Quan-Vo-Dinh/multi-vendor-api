@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 
+import {
+  AccessTokenPayload,
+  AccessTokenPayloadCreate,
+  RefreshTokenPayload,
+  RefreshTokenPayloadCreate,
+} from 'src/shared/types/jwt.type'
+
 import { envConfig } from '../config'
-import { TokenPayload } from '../types/jwt.type'
 
 @Injectable()
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
 
-  signAccessToken(payload: { userId: string }): string {
+  signAccessToken(payload: AccessTokenPayloadCreate): string {
     return this.jwtService.sign(payload, {
       secret: envConfig.ACCESS_TOKEN_SECRET,
       expiresIn: envConfig.ACCESS_TOKEN_EXPIRATION,
@@ -16,7 +22,7 @@ export class TokenService {
     })
   }
 
-  signRefreshToken(payload: { userId: string }): string {
+  signRefreshToken(payload: RefreshTokenPayloadCreate): string {
     return this.jwtService.sign(payload, {
       secret: envConfig.REFRESH_TOKEN_SECRET,
       expiresIn: envConfig.REFRESH_TOKEN_EXPIRATION,
@@ -24,29 +30,15 @@ export class TokenService {
     })
   }
 
-  async verifyAccessToken(token: string): Promise<TokenPayload> {
-    const rawPayload = await this.jwtService.verifyAsync(token, {
+  verifyAccessToken(token: string): Promise<AccessTokenPayload> {
+    return this.jwtService.verifyAsync(token, {
       secret: envConfig.ACCESS_TOKEN_SECRET,
     })
-
-    // Parse để đảm bảo đúng kiểu dữ liệu
-    return {
-      userId: Number(rawPayload.userId),
-      exp: Number(rawPayload.exp),
-      iat: Number(rawPayload.iat),
-    }
   }
 
-  async verifyRefreshToken(token: string): Promise<TokenPayload> {
-    const rawPayload = await this.jwtService.verifyAsync(token, {
+  verifyRefreshToken(token: string): Promise<RefreshTokenPayload> {
+    return this.jwtService.verifyAsync(token, {
       secret: envConfig.REFRESH_TOKEN_SECRET,
     })
-
-    // Parse để đảm bảo đúng kiểu dữ liệu
-    return {
-      userId: Number(rawPayload.userId),
-      exp: Number(rawPayload.exp),
-      iat: Number(rawPayload.iat),
-    }
   }
 }

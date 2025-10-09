@@ -11,6 +11,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 model Language {
   id                   String                @id @db.VarChar(10)
   name                 String                @db.VarChar(500)

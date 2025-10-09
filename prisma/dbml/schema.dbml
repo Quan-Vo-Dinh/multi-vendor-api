@@ -1,0 +1,648 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Language {
+  id String [pk]
+  name String [not null]
+  userTranslations UserTranslation [not null]
+  productTranslations ProductTranslation [not null]
+  categoryTranslations CategoryTranslation [not null]
+  brandTranslations BrandTranslation [not null]
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table User {
+  id Int [pk, increment]
+  email String [unique, not null]
+  name String [not null]
+  password String [not null]
+  phoneNumber String [not null]
+  avatar String
+  otpSecret String
+  status UserStatus [not null, default: 'INACTIVE']
+  roleId Int [not null]
+  role Role [not null]
+  devices Device [not null]
+  refreshTokens RefreshToken [not null]
+  carts CartItem [not null]
+  orders Order [not null]
+  reviews Review [not null]
+  createdPermissions Permission [not null]
+  updatedPermissions Permission [not null]
+  deletedPermissions Permission [not null]
+  createdRoles Role [not null]
+  updatedRoles Role [not null]
+  deletedRoles Role [not null]
+  createdProducts Product [not null]
+  updatedProducts Product [not null]
+  deletedProducts Product [not null]
+  createdCategories Category [not null]
+  updatedCategories Category [not null]
+  deletedCategories Category [not null]
+  createdSKUs SKU [not null]
+  updatedSKUs SKU [not null]
+  deletedSKUs SKU [not null]
+  createdLanguages Language [not null]
+  updatedLanguages Language [not null]
+  deletedLanguages Language [not null]
+  createdBrands Brand [not null]
+  updatedBrands Brand [not null]
+  deletedBrands Brand [not null]
+  createdProductTranslations ProductTranslation [not null]
+  updatedProductTranslations ProductTranslation [not null]
+  deletedProductTranslations ProductTranslation [not null]
+  createdCategoryTranslations CategoryTranslation [not null]
+  updatedCategoryTranslations CategoryTranslation [not null]
+  deletedCategoryTranslations CategoryTranslation [not null]
+  createdBrandTranslations BrandTranslation [not null]
+  updatedBrandTranslations BrandTranslation [not null]
+  deletedBrandTranslations BrandTranslation [not null]
+  createdOrders Order [not null]
+  updatedOrders Order [not null]
+  deletedOrders Order [not null]
+  soldOrders Order [not null]
+  createdUserTranslations UserTranslation [not null]
+  updatedUserTranslations UserTranslation [not null]
+  deletedUserTranslations UserTranslation [not null]
+  userTranslations UserTranslation [not null]
+  sentMessages Message [not null]
+  receivedMessages Message [not null]
+  webSockets Websocket [not null]
+  createdById Int
+  createdBy User
+  createdUsers User [not null]
+  updatedById Int
+  updatedBy User
+  updatedUsers User [not null]
+  deletedById Int
+  deletedBy User
+  deletedUsers User [not null]
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table UserTranslation {
+  id Int [pk, increment]
+  userId Int [not null]
+  user User [not null]
+  languageId String [not null]
+  language Language [not null]
+  address String
+  description String
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table VerificationCode {
+  id Int [pk, increment]
+  email String [unique, not null]
+  code String [not null]
+  type VerificationCodeType [not null]
+  expiresAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+
+  indexes {
+    (email, type, code) [unique]
+  }
+}
+
+Table Device {
+  id Int [pk, increment]
+  userId Int [not null]
+  user User [not null]
+  userAgent String [not null]
+  ip String [not null]
+  lastActive DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  isActive Boolean [not null, default: true]
+  refreshTokens RefreshToken [not null]
+}
+
+Table RefreshToken {
+  token String [unique, not null]
+  userId Int [not null]
+  user User [not null]
+  deviceId Int [not null]
+  device Device [not null]
+  expiresAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table Permission {
+  id Int [pk, increment]
+  name String [not null]
+  description String [not null, default: '']
+  path String [not null]
+  method HTTPMethod [not null]
+  module String [not null, default: '']
+  roles Role [not null]
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Role {
+  id Int [pk, increment]
+  name String [unique, not null]
+  description String [not null, default: '']
+  isActive Boolean [not null, default: true]
+  permissions Permission [not null]
+  users User [not null]
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Product {
+  id Int [pk, increment]
+  publishedAt DateTime
+  name String [not null]
+  basePrice Float [not null]
+  virtualPrice Float [not null]
+  brandId Int [not null]
+  brand Brand [not null]
+  images String[] [not null]
+  categories Category [not null]
+  variants Json [not null, note: '[Variants]']
+  skus SKU [not null]
+  reviews Review [not null]
+  productTranslations ProductTranslation [not null]
+  orders Order [not null]
+  productSKUSnapshots ProductSKUSnapshot [not null]
+  createdById Int [not null]
+  createdBy User [not null]
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table ProductTranslation {
+  id Int [pk, increment]
+  productId Int [not null]
+  product Product [not null]
+  languageId String [not null]
+  language Language [not null]
+  name String [not null]
+  description String [not null]
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Category {
+  id Int [pk, increment]
+  products Product [not null]
+  name String [not null]
+  logo String
+  parentCategoryId Int
+  parentCategory Category
+  childrenCategories Category [not null]
+  categoryTranslations CategoryTranslation [not null]
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table CategoryTranslation {
+  id Int [pk, increment]
+  categoryId Int [not null]
+  category Category [not null]
+  languageId String [not null]
+  language Language [not null]
+  name String [not null]
+  description String [not null]
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table SKU {
+  id Int [pk, increment]
+  value String [not null]
+  price Float [not null]
+  stock Int [not null]
+  image String [not null]
+  productId Int [not null]
+  product Product [not null]
+  cartItems CartItem [not null]
+  productSKUSnapshots ProductSKUSnapshot [not null]
+  createdById Int [not null]
+  createdBy User [not null]
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Brand {
+  id Int [pk, increment]
+  logo String [not null]
+  products Product [not null]
+  brandTranslations BrandTranslation [not null]
+  name String [not null]
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table BrandTranslation {
+  id Int [pk, increment]
+  brandId Int [not null]
+  brand Brand [not null]
+  languageId String [not null]
+  language Language [not null]
+  name String [not null]
+  description String [not null]
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table CartItem {
+  id Int [pk, increment]
+  quantity Int [not null]
+  skuId Int [not null]
+  sku SKU [not null]
+  userId Int [not null]
+  user User [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (userId, skuId) [unique]
+  }
+}
+
+Table ProductSKUSnapshot {
+  id Int [pk, increment]
+  productName String [not null]
+  skuPrice Float [not null]
+  image String [not null]
+  skuValue String [not null]
+  skuId Int
+  sku SKU
+  orderId Int
+  order Order
+  quantity Int [not null]
+  productId Int
+  product Product
+  productTranslations Json [not null, note: '[ProductTranslations]']
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table Order {
+  id Int [pk, increment]
+  userId Int [not null]
+  user User [not null]
+  status OrderStatus [not null]
+  items ProductSKUSnapshot [not null]
+  products Product [not null]
+  reviews Review [not null]
+  receiver Json [not null, note: '[Receiver]']
+  shopId Int
+  shop User
+  paymentId Int [not null]
+  payment Payment [not null]
+  createdById Int
+  createdBy User
+  updatedById Int
+  updatedBy User
+  deletedById Int
+  deletedBy User
+  deletedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Payment {
+  id Int [pk, increment]
+  orders Order [not null]
+  status PaymentStatus [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Websocket {
+  id String [pk]
+  userId Int [not null]
+  user User [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table Review {
+  id Int [pk, increment]
+  content String [not null]
+  rating Int [not null]
+  orderId Int [not null]
+  order Order [not null]
+  productId Int [not null]
+  product Product [not null]
+  userId Int [not null]
+  user User [not null]
+  medias ReviewMedia [not null]
+  updateCount Int [not null, default: 0]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+
+  indexes {
+    (orderId, productId) [unique]
+  }
+}
+
+Table ReviewMedia {
+  id Int [pk, increment]
+  url String [not null]
+  type MediaType [not null]
+  reviewId Int [not null]
+  review Review [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table PaymentTransaction {
+  id Int [pk, increment]
+  gateway String [not null]
+  transactionDate DateTime [default: `now()`, not null]
+  accountNumber String
+  subAccount String
+  amountIn Int [not null, default: 0]
+  amountOut Int [not null, default: 0]
+  accumulated Int [not null, default: 0]
+  code String
+  transactionContent String
+  referenceNumber String
+  body String
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table Message {
+  id Int [pk, increment]
+  fromUserId Int [not null]
+  fromUser User [not null]
+  toUserId Int [not null]
+  toUser User [not null]
+  content String [not null]
+  readAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table PermissionToRole {
+  rolesId Int [ref: > Role.id]
+  permissionsId Int [ref: > Permission.id]
+}
+
+Table CategoryToProduct {
+  categoriesId Int [ref: > Category.id]
+  productsId Int [ref: > Product.id]
+}
+
+Table OrderToProduct {
+  ordersId Int [ref: > Order.id]
+  productsId Int [ref: > Product.id]
+}
+
+Enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+Enum OrderStatus {
+  PENDING_PAYMENT
+  PENDING_PICKUP
+  PENDING_DELIVERY
+  DELIVERED
+  RETURNED
+  CANCELLED
+}
+
+Enum VerificationCodeType {
+  REGISTER
+  FORGOT_PASSWORD
+  LOGIN
+  DISABLE_2FA
+}
+
+Enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+Enum HTTPMethod {
+  GET
+  POST
+  PUT
+  DELETE
+  PATCH
+  OPTIONS
+  HEAD
+}
+
+Enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+Ref: Language.createdById > User.id [delete: Set Null]
+
+Ref: Language.updatedById > User.id [delete: Set Null]
+
+Ref: Language.deletedById > User.id [delete: Set Null]
+
+Ref: User.roleId > Role.id [delete: No Action]
+
+Ref: User.createdById - User.id [delete: Set Null]
+
+Ref: User.updatedById - User.id [delete: Set Null]
+
+Ref: User.deletedById - User.id [delete: Set Null]
+
+Ref: UserTranslation.userId > User.id [delete: Cascade]
+
+Ref: UserTranslation.languageId > Language.id [delete: Cascade]
+
+Ref: UserTranslation.createdById > User.id [delete: Cascade]
+
+Ref: UserTranslation.updatedById > User.id [delete: Cascade]
+
+Ref: UserTranslation.deletedById > User.id [delete: Cascade]
+
+Ref: Device.userId > User.id [delete: Cascade]
+
+Ref: RefreshToken.userId > User.id [delete: Cascade]
+
+Ref: RefreshToken.deviceId > Device.id [delete: Cascade]
+
+Ref: Permission.createdById > User.id [delete: Set Null]
+
+Ref: Permission.updatedById > User.id [delete: Set Null]
+
+Ref: Permission.deletedById > User.id [delete: Set Null]
+
+Ref: Role.createdById - User.id
+
+Ref: Role.updatedById - User.id
+
+Ref: Role.deletedById - User.id
+
+Ref: Product.brandId > Brand.id [delete: No Action]
+
+Ref: Product.createdById > User.id [delete: Cascade]
+
+Ref: Product.updatedById > User.id [delete: Cascade]
+
+Ref: Product.deletedById > User.id [delete: Cascade]
+
+Ref: ProductTranslation.productId > Product.id [delete: Cascade]
+
+Ref: ProductTranslation.languageId > Language.id [delete: Cascade]
+
+Ref: ProductTranslation.createdById > User.id [delete: Set Null]
+
+Ref: ProductTranslation.updatedById > User.id [delete: Set Null]
+
+Ref: ProductTranslation.deletedById > User.id [delete: Set Null]
+
+Ref: Category.parentCategoryId - Category.id [delete: Set Null]
+
+Ref: Category.createdById > User.id [delete: Set Null]
+
+Ref: Category.updatedById > User.id [delete: Set Null]
+
+Ref: Category.deletedById > User.id [delete: Set Null]
+
+Ref: CategoryTranslation.categoryId > Category.id [delete: Cascade]
+
+Ref: CategoryTranslation.languageId > Language.id [delete: Cascade]
+
+Ref: CategoryTranslation.createdById > User.id [delete: Set Null]
+
+Ref: CategoryTranslation.updatedById > User.id [delete: Set Null]
+
+Ref: CategoryTranslation.deletedById > User.id [delete: Set Null]
+
+Ref: SKU.productId > Product.id [delete: Cascade]
+
+Ref: SKU.createdById > User.id [delete: Cascade]
+
+Ref: SKU.updatedById > User.id [delete: Cascade]
+
+Ref: SKU.deletedById > User.id [delete: Cascade]
+
+Ref: Brand.createdById > User.id [delete: Set Null]
+
+Ref: Brand.updatedById > User.id [delete: Set Null]
+
+Ref: Brand.deletedById > User.id [delete: Set Null]
+
+Ref: BrandTranslation.brandId > Brand.id [delete: Cascade]
+
+Ref: BrandTranslation.languageId > Language.id [delete: Cascade]
+
+Ref: BrandTranslation.createdById > User.id [delete: Set Null]
+
+Ref: BrandTranslation.updatedById > User.id [delete: Set Null]
+
+Ref: BrandTranslation.deletedById > User.id [delete: Set Null]
+
+Ref: CartItem.skuId > SKU.id [delete: Cascade]
+
+Ref: CartItem.userId > User.id [delete: Cascade]
+
+Ref: ProductSKUSnapshot.skuId > SKU.id [delete: Set Null]
+
+Ref: ProductSKUSnapshot.orderId > Order.id [delete: Set Null]
+
+Ref: ProductSKUSnapshot.productId > Product.id [delete: Set Null]
+
+Ref: Order.userId > User.id [delete: No Action]
+
+Ref: Order.shopId > User.id [delete: No Action]
+
+Ref: Order.paymentId > Payment.id [delete: No Action]
+
+Ref: Order.createdById > User.id [delete: No Action]
+
+Ref: Order.updatedById > User.id [delete: No Action]
+
+Ref: Order.deletedById > User.id [delete: No Action]
+
+Ref: Websocket.userId > User.id [delete: Cascade]
+
+Ref: Review.orderId > Order.id [delete: Cascade]
+
+Ref: Review.productId > Product.id [delete: No Action]
+
+Ref: Review.userId > User.id [delete: No Action]
+
+Ref: ReviewMedia.reviewId > Review.id [delete: Cascade]
+
+Ref: Message.fromUserId > User.id [delete: Cascade]
+
+Ref: Message.toUserId > User.id [delete: Cascade]

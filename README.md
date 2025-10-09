@@ -145,26 +145,30 @@ graph BR
 
 #### Key Security Features
 
-* **Token-based Authentication**: Access & Refresh token system with configurable expiration
-* **Device Management**: Track and manage active sessions across multiple devices
-* **2FA Support**: TOTP-based two-factor authentication for enhanced security
-* **Role-Based Access Control**: Granular permissions for different user types
-* **Session Security**: Automatic device fingerprinting and suspicious activity detection
+- **Token-based Authentication**: Access & Refresh token system with configurable expiration
+- **Device Management**: Track and manage active sessions across multiple devices
+- **2FA Support**: TOTP-based two-factor authentication for enhanced security
+- **Role-Based Access Control**: Granular permissions for different user types
+- **Session Security**: Automatic device fingerprinting and suspicious activity detection
 
 ---
 
 ### Product Management System
+
 #### Multi-Vendor Catalog Architecture
+
 > **Note:** This feature is currently under development.
 
 ---
 
 ### Order & Payment Processing
+
 > **Note:** This feature is currently under development.
 
 ---
 
 ### Notification & Messaging System
+
 > **Note:** This feature is currently under development.
 
 ---
@@ -175,12 +179,12 @@ graph BR
 
 #### Key Components
 
-* **User Management**: Multi-role user system with authentication tracking
-* **Product Catalog**: Vendor-based product structure with variants and stock
-* **Order Processing**: Full lifecycle management with payment integration
-* **Multi-language Support**: Translation system for localization
-* * **Analytics & Reporting**: Data tracking for business intelligence
+- **User Management**: Multi-role user system with authentication tracking
+- **Product Catalog**: Vendor-based product structure with variants and stock
+- **Order Processing**: Full lifecycle management with payment integration
+- **Multi-language Support**: Translation system for localization
+- - **Analytics & Reporting**: Data tracking for business intelligence
 
-> **Detailed DB docs:** For the full, interactive database schema, table descriptions, and ER diagrams, please refer to the project DB documentation hosted on dbdocs: https://dbdocs.io/vodinhquan2707.it/multi-vendor (password: vodinhquan)
+> **Detailed DB docs:** For the full, interactive database schema, table descriptions, and ER diagrams, please refer to the project DB documentation hosted on dbdocs: https://dbdocs.io/vodinhquan2707.it/multi-vendor
 
 ---
