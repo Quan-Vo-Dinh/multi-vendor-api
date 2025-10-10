@@ -102,6 +102,9 @@ export class AuthService {
     }
     return {
       message: 'OTP sent successfully',
+      // verificationCodeId: verificationCode.id,
+      // data: result.data,
+      // error: result.error,
     }
   }
 

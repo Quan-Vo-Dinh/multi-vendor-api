@@ -10,3 +10,5 @@ export type AuthMetadataPayload = { authTypes: AuthType[]; options: { conditions
 export const AUTH_TYPE_KEY = 'authTypes'
 export const Auth = (authTypes: AuthType[], options?: { conditions: ConditionGuardType }) =>
   SetMetadata(AUTH_TYPE_KEY, { authTypes, options: options ?? { conditions: ConditionGuardType.AND } })
+
+export const IsPublic = () => Auth([AuthType.None])

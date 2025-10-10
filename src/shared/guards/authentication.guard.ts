@@ -1,18 +1,19 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { firstValueFrom, isObservable } from 'rxjs'
 
+import { AuthType, ConditionGuardType } from 'src/shared/constants/auth.constant'
+import { AUTH_TYPE_KEY, AuthMetadataPayload } from 'src/shared/decorators/auth.decorator'
+
 import { AccessTokenGuard } from './access-token.guard'
 import { APIKeyGuard } from './api-key.guard'
-import { AuthType, ConditionGuardType } from '../constants/auth.constant'
-import { AUTH_TYPE_KEY, AuthMetadataPayload } from '../decorators/auth.decorator'
 
+// Composition Pattern - Super Guard
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
-  private authTypeGuardsMap: Record<string, CanActivate>
+  private authTypeGuardsMap: Record<AuthType, CanActivate>
 
   constructor(
-    // khai báo các guard tương ứng với từng loại auth và reflector để đọc metadata từ decorators
     private readonly reflector: Reflector,
     private readonly accessTokenGuard: AccessTokenGuard,
     private readonly apiKeyGuard: APIKeyGuard,
@@ -27,7 +28,7 @@ export class AuthenticationGuard implements CanActivate {
     const authTypeValue = this.reflector.getAllAndOverride<AuthMetadataPayload | undefined>(AUTH_TYPE_KEY, [
       context.getHandler(),
       context.getClass(),
-    ]) ?? { authTypes: [AuthType.None], options: { conditions: ConditionGuardType.OR } }
+    ]) ?? { authTypes: [AuthType.Bearer], options: { conditions: ConditionGuardType.OR } }
 
     const guards = authTypeValue.authTypes.map((type) => {
       const guard = this.authTypeGuardsMap[type]
