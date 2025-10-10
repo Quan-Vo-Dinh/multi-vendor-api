@@ -43,13 +43,13 @@ export class AuthRepository {
     })
   }
 
-  async createRefreshToken(data: { userId: number; refreshToken: string; expiresAt: Date; deviceId: string }) {
+  async createRefreshToken(data: { userId: number; refreshToken: string; expiresAt: Date; deviceId: number }) {
     return this.prismaService.refreshToken.create({
       data: {
         userId: data.userId,
         token: data.refreshToken,
         expiresAt: data.expiresAt,
-        deviceId: parseInt(data.deviceId),
+        deviceId: data.deviceId,
       },
     })
   }
@@ -90,6 +90,12 @@ export class AuthRepository {
     return this.prismaService.device.update({
       where: { id: deviceId },
       data,
+    })
+  }
+
+  async findRefreshToken(uniqueObject: { token: string }): Promise<RefreshTokenType> {
+    return this.prismaService.refreshToken.findUniqueOrThrow({
+      where: uniqueObject,
     })
   }
 

@@ -11,7 +11,7 @@ import { AuthRepository } from 'src/modules/auth/repo/auth.repo'
 import { RolesService } from 'src/modules/auth/roles.service'
 import { envConfig } from 'src/shared/config'
 import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
-import { generateRandomCode, isUniqueConstraintPrismaError } from 'src/shared/helpers'
+import { generateRandomCode, isRecordNotFoundError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
 import { EmailService } from 'src/shared/services/email.service'
 import { HashingService } from 'src/shared/services/hashing.service'
@@ -102,9 +102,6 @@ export class AuthService {
     }
     return {
       message: 'OTP sent successfully',
-      verificationCodeId: verificationCode.id,
-      data: result.data,
-      error: result.error,
     }
   }
 
@@ -133,6 +130,7 @@ export class AuthService {
       isActive: true,
       lastActive: new Date(),
     })
+    console.log('---------------------------------device login:', device)
 
     const token = await this.generateTokens({
       userId: user.id,
@@ -161,7 +159,7 @@ export class AuthService {
       userId,
       refreshToken,
       expiresAt: new Date(decodedRefreshToken.exp * 1000),
-      deviceId: '1',
+      deviceId: deviceId,
     })
 
     return { accessToken, refreshToken }
@@ -212,30 +210,28 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token')
     }
   }
-  //
-  // async logout(refreshToken: string) {
-  //   try {
-  //     await this.tokenService.verifyRefreshToken(refreshToken) // verify token xem có hợp lệ không
-  //
-  //     // Tìm token trong database, nếu không có tức đã bị revoke, throw nó ra
-  //     const storedToken = await this.prismaService.refreshToken.findUniqueOrThrow({
-  //       where: { token: refreshToken },
-  //     })
-  //
-  //     if (storedToken.expiresAt < new Date()) {
-  //       throw new UnauthorizedException('Refresh token has expired')
-  //     }
-  //
-  //     // Xóa refresh token khỏi database để logout
-  //     await this.prismaService.refreshToken.delete({
-  //       where: { token: refreshToken },
-  //     })
-  //     return { message: 'Logged out successfully' }
-  //   } catch (error) {
-  //     if (isRecordNotFoundError(error)) {
-  //       throw new UnauthorizedException('Refresh token has been revoked')
-  //     }
-  //     throw new UnauthorizedException('Invalid refresh token')
-  //   }
-  // }
+
+  async logout(refreshToken: string) {
+    try {
+      await this.tokenService.verifyRefreshToken(refreshToken)
+      const storedToken = await this.authRepository.findRefreshToken({ token: refreshToken })
+
+      if (storedToken.expiresAt < new Date()) {
+        throw new UnauthorizedException('Refresh token has expired')
+      }
+
+      const deletedToken = await this.authRepository.deleteRefreshToken({ token: refreshToken })
+      const deviceId = deletedToken.deviceId
+      console.log('deletedToken:--------------------------------', deletedToken)
+      await this.authRepository.updateDevice(deviceId, { isActive: false })
+
+      return { message: 'Logged out successfully' }
+    } catch (error) {
+      if (isRecordNotFoundError(error)) {
+        console.log('check error', error)
+        throw new UnauthorizedException('Refresh token has been revoked')
+      }
+      throw new UnauthorizedException()
+    }
+  }
 }
