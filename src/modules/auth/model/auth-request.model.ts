@@ -63,3 +63,23 @@ export type RefreshTokenBodyType = z.infer<typeof RefreshTokenBodySchema>
 export const LogoutBodySchema = RefreshTokenBodySchema
 
 export type LogoutBodyType = z.infer<typeof LogoutBodySchema>
+
+// Forgot Password Request Schema
+export const ForgotPasswordBodySchema = z
+  .object({
+    email: z.email(),
+    code: z.string().min(1).max(6),
+    newPassword: z.string().min(6),
+    confirmNewPassword: z.string().min(6),
+  })
+  .strict()
+  .superRefine(({ newPassword, confirmNewPassword }, ctx) => {
+    if (newPassword !== confirmNewPassword) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Passwords do not match',
+        path: ['confirmNewPassword'],
+      })
+    }
+  })
+export type ForgotPasswordBodyType = z.infer<typeof ForgotPasswordBodySchema>

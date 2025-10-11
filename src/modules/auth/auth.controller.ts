@@ -2,6 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Ip, Post } from '@nestjs/common
 import { ZodSerializerDto } from 'nestjs-zod'
 
 import {
+  ForgotPasswordBodyDto,
   LoginBodyDto,
   LoginResDto,
   LogoutBodyDto,
@@ -60,5 +61,12 @@ export class AuthController {
   @ZodSerializerDto(MessageResDto)
   logout(@Body() body: LogoutBodyDto) {
     return this.authService.logout(body.refreshToken)
+  }
+
+  @Post('forgot-password')
+  @IsPublic()
+  @ZodSerializerDto(MessageResDto)
+  forgotPassword(@Body() body: ForgotPasswordBodyDto) {
+    return this.authService.forgotPassword(body)
   }
 }

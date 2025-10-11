@@ -2,6 +2,7 @@ import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common
 import { addMinutes } from 'date-fns'
 
 import {
+  ForgotPasswordBodyType,
   LoginBodyType,
   RefreshTokenBodyType,
   RegisterBodyType,
@@ -10,7 +11,7 @@ import {
 import { AuthRepository } from 'src/modules/auth/repo/auth.repo'
 import { RolesService } from 'src/modules/auth/roles.service'
 import { envConfig } from 'src/shared/config'
-import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
+import { TypeofVerificationCode, TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
 import { generateRandomCode, isRecordNotFoundError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
 import { EmailService } from 'src/shared/services/email.service'
@@ -38,32 +39,44 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
+  async validateVerificationCode({ email, code, type }: { email: string; code: string; type: TypeofVerificationCode }) {
+    const verificationCode = await this.authRepository.findVerificationCode({ email, type, code })
+    if (!verificationCode) {
+      throw InvalidOtpException
+    }
+    if (verificationCode.expiresAt < new Date()) {
+      throw OtpExpiredException
+    }
+    return verificationCode
+  }
+
   async register(body: RegisterBodyType) {
     try {
-      const verificationCode = await this.authRepository.findVerificationCode({
+      await this.validateVerificationCode({
         email: body.email,
-        type: TypeOfVerificationCode.REGISTER,
         code: body.code,
+        type: TypeOfVerificationCode.REGISTER,
       })
-
-      if (!verificationCode) {
-        throw InvalidOtpException
-      }
-
-      if (verificationCode.expiresAt < new Date()) {
-        throw OtpExpiredException
-      }
 
       const clientRoleId = await this.rolesService.getClientRoleId()
       const hashedPassword = await this.hashingService.hash(body.password)
 
-      return await this.authRepository.createUser({
-        name: body.name,
-        email: body.email,
-        phoneNumber: body.phoneNumber,
-        password: hashedPassword,
-        roleId: clientRoleId,
-      })
+      const [user] = await Promise.all([
+        this.authRepository.createUser({
+          name: body.name,
+          email: body.email,
+          phoneNumber: body.phoneNumber,
+          password: hashedPassword,
+          roleId: clientRoleId,
+        }),
+        this.authRepository.deleteVerificationCode({
+          email: body.email,
+          type: TypeOfVerificationCode.FORGOT_PASSWORD,
+          code: body.code,
+        }),
+      ])
+
+      return user
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
         throw EmailAlreadyExistsException
@@ -75,8 +88,12 @@ export class AuthService {
   async sendOtp(body: SendOtpBodyType) {
     //1. check email or phone number exists
     const user = await this.sharedUserRepository.findUnique({ email: body.email })
+
     if (body.type === TypeOfVerificationCode.REGISTER && user) {
       throw EmailAlreadyExistsException
+    }
+    if (body.type === TypeOfVerificationCode.FORGOT_PASSWORD && !user) {
+      throw EmailNotFoundException
     }
     //2. generate otp
     const otpCode = generateRandomCode()
@@ -95,9 +112,6 @@ export class AuthService {
     }
     return {
       message: 'OTP sent successfully',
-      // verificationCodeId: verificationCode.id,
-      // data: result.data,
-      // error: result.error,
     }
   }
 
@@ -223,5 +237,34 @@ export class AuthService {
       }
       throw new UnauthorizedException()
     }
+  }
+
+  async forgotPassword(body: ForgotPasswordBodyType) {
+    // 1. Check if user with the given email exists
+    const user = await this.sharedUserRepository.findUnique({ email: body.email })
+    if (!user) {
+      throw EmailNotFoundException
+    }
+
+    // 2. Validate the OTP code
+    await this.validateVerificationCode({
+      email: body.email,
+      code: body.code,
+      type: TypeOfVerificationCode.FORGOT_PASSWORD,
+    })
+
+    // 3. Update the user's password & delete used OTP
+    const hashedPassword = await this.hashingService.hash(body.newPassword)
+    await Promise.all([
+      this.authRepository.updateUser(user.id, { password: hashedPassword }),
+      this.authRepository.deleteVerificationCode({
+        email: body.email,
+        type: TypeOfVerificationCode.FORGOT_PASSWORD,
+        code: body.code,
+      }),
+    ])
+
+    // 4. Send success response
+    return { message: 'Password has been reset successfully' }
   }
 }
