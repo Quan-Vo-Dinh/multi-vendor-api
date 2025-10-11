@@ -1,4 +1,4 @@
-import { HttpException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
+import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { addMinutes } from 'date-fns'
 
 import {
@@ -17,6 +17,15 @@ import { EmailService } from 'src/shared/services/email.service'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { TokenService } from 'src/shared/services/token.service'
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type'
+
+import {
+  EmailAlreadyExistsException,
+  EmailNotFoundException,
+  FailedToSendOtpException,
+  InvalidOtpException,
+  InvalidPasswordException,
+  OtpExpiredException,
+} from './model/auth-error.model'
 
 @Injectable()
 export class AuthService {
@@ -38,16 +47,11 @@ export class AuthService {
       })
 
       if (!verificationCode) {
-        throw new UnprocessableEntityException({
-          message: 'Invalid verification code',
-          path: ['code'],
-        })
+        throw InvalidOtpException
       }
 
       if (verificationCode.expiresAt < new Date()) {
-        throw new UnprocessableEntityException({
-          message: 'Verification code has expired',
-        })
+        throw OtpExpiredException
       }
 
       const clientRoleId = await this.rolesService.getClientRoleId()
@@ -62,11 +66,7 @@ export class AuthService {
       })
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException({
-          field: 'email',
-          message: 'Email already exists',
-          path: ['email'],
-        })
+        throw EmailAlreadyExistsException
       }
       throw error
     }
@@ -76,16 +76,12 @@ export class AuthService {
     //1. check email or phone number exists
     const user = await this.sharedUserRepository.findUnique({ email: body.email })
     if (body.type === TypeOfVerificationCode.REGISTER && user) {
-      throw new UnprocessableEntityException({
-        field: 'email',
-        message: 'Email already exists',
-        path: ['email'],
-      })
+      throw EmailAlreadyExistsException
     }
     //2. generate otp
     const otpCode = generateRandomCode()
 
-    const verificationCode = await this.authRepository.createVerificationCode({
+    await this.authRepository.createVerificationCode({
       code: otpCode,
       email: body.email,
       type: body.type,
@@ -95,10 +91,7 @@ export class AuthService {
     const result = await this.emailService.sendOtp({ email: body.email, code: otpCode })
     if (result.error) {
       console.log(result.error)
-      throw new UnprocessableEntityException({
-        message: 'Failed to send OTP email',
-        path: ['email'],
-      })
+      throw FailedToSendOtpException
     }
     return {
       message: 'OTP sent successfully',
@@ -112,19 +105,13 @@ export class AuthService {
     const user = await this.authRepository.findUniqueIncludeRole({ email: body.email })
 
     if (!user) {
-      throw new UnprocessableEntityException({
-        field: 'email',
-        error: 'Email not registered',
-      })
+      throw EmailNotFoundException
     }
 
     const isPasswordValid = await this.hashingService.compare(body.password, user.password)
 
     if (!isPasswordValid) {
-      throw new UnprocessableEntityException({
-        field: 'password',
-        error: 'Invalid password',
-      })
+      throw InvalidPasswordException
     }
     const device = await this.authRepository.createDevice({
       userId: user.id,
