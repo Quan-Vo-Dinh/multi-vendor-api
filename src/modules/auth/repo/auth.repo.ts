@@ -17,26 +17,23 @@ export class AuthRepository {
 
   createUser(
     user: Omit<RegisterBodyType, 'confirmPassword' | 'code'> & Pick<UserType, 'roleId'>,
-  ): Promise<Omit<UserType, 'password' | 'otpSecret'>> {
+  ): Promise<Omit<UserType, 'password' | 'totpSecret'>> {
     return this.prismaService.user.create({
       data: user,
-      omit: { password: true, otpSecret: true },
+      omit: { password: true, totpSecret: true },
     })
   }
 
-  createVerificationCode(verificationCode: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>) {
+  createVerificationCode(payload: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>) {
     return this.prismaService.verificationCode.upsert({
-      where: { email: verificationCode.email },
-      create: verificationCode,
-      update: {
-        code: verificationCode.code,
-        expiresAt: verificationCode.expiresAt,
-      },
+      where: { email_type: { email: payload.email, type: payload.type } },
+      create: payload,
+      update: { code: payload.code, expiresAt: payload.expiresAt },
     })
   }
 
-  findVerificationCode(
-    uniqueValue: { email: string } | { id: number } | { email: string; type: TypeofVerificationCode; code: string },
+  findUniqueVerificationCode(
+    uniqueValue: { id: number } | { email_type: { email: string; type: TypeofVerificationCode } },
   ): Promise<VerificationCodeType | null> {
     return this.prismaService.verificationCode.findUnique({
       where: uniqueValue,
@@ -113,8 +110,8 @@ export class AuthRepository {
   }
 
   deleteVerificationCode(
-    uniqueValue: { email: string } | { id: number } | { email: string; type: TypeofVerificationCode; code: string },
-  ): Promise<VerificationCodeType | null> {
+    uniqueValue: { id: number } | { email_type: { email: string; type: TypeofVerificationCode } },
+  ) {
     return this.prismaService.verificationCode.delete({
       where: uniqueValue,
     })

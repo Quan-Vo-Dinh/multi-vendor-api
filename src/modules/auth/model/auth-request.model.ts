@@ -31,7 +31,12 @@ export type RegisterBodyType = z.infer<typeof RegisterBodySchema>
 export const LoginBodySchema = UserSchema.pick({
   email: true,
   password: true,
-}).strict()
+})
+  .extend({
+    totpCode: z.string().length(6).optional(), // 2FA code
+    code: z.string().length(6).optional(), // Email OTP code for login
+  })
+  .strict()
 
 export type LoginBodyType = z.infer<typeof LoginBodySchema>
 
@@ -83,3 +88,40 @@ export const ForgotPasswordBodySchema = z
     }
   })
 export type ForgotPasswordBodyType = z.infer<typeof ForgotPasswordBodySchema>
+
+export const DisableTwoFactorBodySchema = z
+  .object({
+    totpCode: z.string().length(6).optional(),
+    code: z.string().length(6).optional(), // Email OTP code for disabling 2FA
+  })
+  .superRefine(({ totpCode, code }, ctx) => {
+    // Nếu cả hai đều không có, thêm lỗi vào cả hai trường
+    // Nếu một trong hai có, không thêm lỗi
+    // Nếu cả hai đều có, thêm lỗi vào cả hai trường
+    if (!totpCode && !code) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Either totpCode or code must be provided',
+        path: ['totpCode'],
+      })
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Either totpCode or code must be provided',
+        path: ['code'],
+      })
+    } else if (totpCode && code) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Only one of totpCode or code should be provided',
+        path: ['totpCode'],
+      })
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Only one of totpCode or code should be provided',
+        path: ['code'],
+      })
+    }
+  })
+  .strict()
+
+export type DisableTwoFactorBodyType = z.infer<typeof DisableTwoFactorBodySchema>

@@ -39,8 +39,8 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
-  async validateVerificationCode({ email, code, type }: { email: string; code: string; type: TypeofVerificationCode }) {
-    const verificationCode = await this.authRepository.findVerificationCode({ email, type, code })
+  async validateVerificationCode({ email, type }: { email: string; type: TypeofVerificationCode }) {
+    const verificationCode = await this.authRepository.findUniqueVerificationCode({ email_type: { email, type } })
     if (!verificationCode) {
       throw InvalidOtpException
     }
@@ -54,7 +54,6 @@ export class AuthService {
     try {
       await this.validateVerificationCode({
         email: body.email,
-        code: body.code,
         type: TypeOfVerificationCode.REGISTER,
       })
 
@@ -70,9 +69,7 @@ export class AuthService {
           roleId: clientRoleId,
         }),
         this.authRepository.deleteVerificationCode({
-          email: body.email,
-          type: TypeOfVerificationCode.FORGOT_PASSWORD,
-          code: body.code,
+          email_type: { email: body.email, type: TypeOfVerificationCode.REGISTER },
         }),
       ])
 
@@ -249,7 +246,6 @@ export class AuthService {
     // 2. Validate the OTP code
     await this.validateVerificationCode({
       email: body.email,
-      code: body.code,
       type: TypeOfVerificationCode.FORGOT_PASSWORD,
     })
 
@@ -258,9 +254,7 @@ export class AuthService {
     await Promise.all([
       this.authRepository.updateUser(user.id, { password: hashedPassword }),
       this.authRepository.deleteVerificationCode({
-        email: body.email,
-        type: TypeOfVerificationCode.FORGOT_PASSWORD,
-        code: body.code,
+        email_type: { email: body.email, type: TypeOfVerificationCode.FORGOT_PASSWORD },
       }),
     ])
 

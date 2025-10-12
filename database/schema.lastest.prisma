@@ -100,7 +100,7 @@ model User {
   avatar      String? @db.VarChar(1000)
 
   // Này có thể dùng để thực hiện chức năng quên mật khẩu, đăng nhập 2 bước
-  otpSecret                   String?               @db.VarChar(1000)
+  totpSecret                   String?               @db.VarChar(1000)
   status                      UserStatus            @default(INACTIVE)
   roleId                      Int
   role                        Role                  @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)

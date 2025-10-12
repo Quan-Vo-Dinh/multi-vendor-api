@@ -5,7 +5,7 @@ import { UserSchema } from 'src/shared/models/shared-user.model'
 // Register Response Schema
 export const RegisterResSchema = UserSchema.omit({
   password: true,
-  otpSecret: true,
+  totpSecret: true,
 })
 
 export type RegisterResType = z.infer<typeof RegisterResSchema>
@@ -22,3 +22,10 @@ export type LoginResType = z.infer<typeof LoginResSchema>
 export const RefreshTokenResSchema = LoginResSchema
 
 export type RefreshTokenResType = LoginResType
+
+export const TwoFactorSetupResSchema = z.object({
+  secret: z.string(),
+  url: z.string(),
+})
+
+export type TwoFactorSetupResType = z.infer<typeof TwoFactorSetupResSchema>

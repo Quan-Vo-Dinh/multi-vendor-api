@@ -9,7 +9,7 @@ export const UserSchema = z.object({
   password: z.string().min(6), // adjust min length as needed
   phoneNumber: z.string().min(10),
   avatar: z.string().nullable(),
-  otpSecret: z.string().nullable(),
+  totpSecret: z.string().nullable(),
   status: z.enum([UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.BLOCKED]).default(UserStatus.ACTIVE),
   roleId: z.number().int().positive(),
   createdById: z.number().int().positive().nullable(),

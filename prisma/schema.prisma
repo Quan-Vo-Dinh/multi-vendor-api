@@ -46,7 +46,7 @@ model User {
   avatar      String? @db.VarChar(1000)
 
   // Này có thể dùng để thực hiện chức năng quên mật khẩu, đăng nhập 2 bước
-  otpSecret                   String?               @db.VarChar(1000)
+  totpSecret                   String?               @db.VarChar(1000)
   status                      UserStatus            @default(INACTIVE)
   roleId                      Int
   role                        Role                  @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -144,14 +144,14 @@ model UserTranslation {
 
 model VerificationCode {
   id    Int                  @id @default(autoincrement())
-  email String               @unique @db.VarChar(500)
+  email String               @db.VarChar(500)
   code  String               @db.VarChar(50)
   type  VerificationCodeType
 
   expiresAt DateTime
   createdAt DateTime @default(now())
 
-  @@unique([email, type, code])
+  @@unique([email, type])
   @@index([expiresAt])
 }
 
