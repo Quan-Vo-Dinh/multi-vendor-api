@@ -26,6 +26,8 @@ const configSchemaZod = z.object({
   ADMIN_PHONE_NUMBER: z.string().min(1, { message: 'ADMIN_PHONE_NUMBER is required' }),
   OTP_EXPIRATION_MINUTES: z.string().min(1, { message: 'OTP_EXPIRATION_MINUTES is required' }),
   RESEND_API_KEY: z.string().min(1, { message: 'RESEND_API_KEY is required' }),
+  APP_NAME: z.string().min(1, { message: 'APP_NAME is required' }),
+  REDIS_URL: z.string().min(1, { message: 'REDIS_URL is required' }),
 })
 
 const configServer = configSchemaZod.safeParse(process.env)

@@ -34,6 +34,7 @@ export const VerificationCodeSchema = z.object({
       TypeOfVerificationCode.FORGOT_PASSWORD,
       TypeOfVerificationCode.LOGIN,
       TypeOfVerificationCode.DISABLE_2FA,
+      TypeOfVerificationCode.LOGIN_2FA,
     ],
     {
       message: 'Error.Invalid.VerificationCode.Type',

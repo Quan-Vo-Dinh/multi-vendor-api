@@ -11,10 +11,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-generator dbml {
-  provider = "prisma-dbml-generator"
-}
-
 model Language {
   id                   String                @id @db.VarChar(10)
   name                 String                @db.VarChar(500)
@@ -556,6 +552,7 @@ enum VerificationCodeType {
   FORGOT_PASSWORD
   LOGIN
   DISABLE_2FA
+  LOGIN_2FA
 }
 
 enum UserStatus {

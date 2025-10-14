@@ -50,3 +50,56 @@ export const RefreshTokenAlreadyUsedException = new UnprocessableEntityException
 ])
 
 export const UnauthorizedException = new UnprocessableEntityException('Error.Unauthorized')
+
+export const TOTPAlreadyEnabledException = new UnprocessableEntityException([
+  {
+    message: 'Error.TOTPAlreadyEnabled',
+    path: 'totpCode',
+  },
+])
+
+export const TOTPNotEnabledException = new UnprocessableEntityException([
+  {
+    message: 'Error.TOTPNotEnabled',
+    path: 'totpCode',
+  },
+])
+
+export const InvalidTOTPAndCodeException = new UnprocessableEntityException([
+  {
+    message: 'Error.InvalidTOTPAndCode',
+    path: 'totpCode',
+  },
+  {
+    message: 'Error.InvalidTOTPAndCode',
+    path: 'code',
+  },
+])
+
+export const TOTPCodeExpiredException = new UnprocessableEntityException([
+  {
+    message: 'Error.TOTPCodeExpired',
+    path: 'totpCode',
+  },
+])
+
+export const InvalidTempIdException = new UnprocessableEntityException([
+  {
+    message: 'Error.InvalidTempId',
+    path: 'tempId',
+  },
+])
+
+export const InvalidTempSessionException = new UnprocessableEntityException([
+  {
+    message: 'Error.InvalidTempSession',
+    path: 'tempSessionId',
+  },
+])
+
+export const InvalidTOTPTokenException = new UnprocessableEntityException([
+  {
+    message: 'Error.InvalidTOTPToken',
+    path: 'token',
+  },
+])

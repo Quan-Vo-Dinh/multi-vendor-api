@@ -10,9 +10,18 @@ import {
   RegisterBodyDto,
   RegisterResDto,
   SendOtpBodyDto,
+  TwoFactorActivateBodyDto,
+  TwoFactorActivateResDto,
+  TwoFactorDisableBodyDto,
+  TwoFactorDisableResDto,
+  TwoFactorSetupResDto,
+  TwoFactorVerifyBodyDto,
 } from 'src/modules/auth/dto/auth.dto'
+import { LoginUnionResType } from 'src/modules/auth/model/auth.model'
+import { ActiveUser } from 'src/shared/decorators/active-user.decorator'
 import { IsPublic } from 'src/shared/decorators/auth.decorator'
 import { UserAgent } from 'src/shared/decorators/user-agent.decorator'
+import { EmptyBodyDto } from 'src/shared/dtos/request.dto'
 import { MessageResDto } from 'src/shared/dtos/response.dto'
 
 import { AuthService } from './auth.service'
@@ -36,8 +45,7 @@ export class AuthController {
 
   @Post('login')
   @IsPublic()
-  @ZodSerializerDto(LoginResDto)
-  login(@Body() body: LoginBodyDto, @UserAgent() userAgent: string, @Ip() ip: string) {
+  login(@Body() body: LoginBodyDto, @UserAgent() userAgent: string, @Ip() ip: string): Promise<LoginUnionResType> {
     return this.authService.login({
       ...body,
       userAgent,
@@ -68,5 +76,30 @@ export class AuthController {
   @ZodSerializerDto(MessageResDto)
   forgotPassword(@Body() body: ForgotPasswordBodyDto) {
     return this.authService.forgotPassword(body)
+  }
+
+  @Post('2fa/setup')
+  @ZodSerializerDto(TwoFactorSetupResDto)
+  setupTwoFactorAuth(@Body() _: EmptyBodyDto, @ActiveUser('userId') userId: number) {
+    return this.authService.setupTwoFactorAuth(userId)
+  }
+
+  @Post('2fa/activate')
+  @ZodSerializerDto(TwoFactorActivateResDto)
+  activateTwoFactorAuth(@Body() body: TwoFactorActivateBodyDto, @ActiveUser('userId') userId: number) {
+    return this.authService.activateTwoFactorAuth(userId, body)
+  }
+
+  @Post('2fa/verify')
+  @IsPublic()
+  @ZodSerializerDto(LoginResDto)
+  verifyTwoFactorAuth(@Body() body: TwoFactorVerifyBodyDto, @UserAgent() userAgent: string, @Ip() ip: string) {
+    return this.authService.verifyTwoFactorAuth(body, { userAgent, ip })
+  }
+
+  @Post('2fa/disable')
+  @ZodSerializerDto(TwoFactorDisableResDto)
+  disableTwoFactorAuth(@Body() body: TwoFactorDisableBodyDto, @ActiveUser('userId') userId: number) {
+    return this.authService.disableTwoFactorAuth(userId, body)
   }
 }

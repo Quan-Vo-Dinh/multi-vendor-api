@@ -4,6 +4,7 @@ import { addMinutes } from 'date-fns'
 import {
   ForgotPasswordBodyType,
   LoginBodyType,
+  LoginUnionResType,
   RefreshTokenBodyType,
   RegisterBodyType,
   SendOtpBodyType,
@@ -14,8 +15,10 @@ import { envConfig } from 'src/shared/config'
 import { TypeofVerificationCode, TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
 import { generateRandomCode, isRecordNotFoundError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
+import { TwoFactorAuthService } from 'src/shared/services/2fa.service'
 import { EmailService } from 'src/shared/services/email.service'
 import { HashingService } from 'src/shared/services/hashing.service'
+import { Temp2FAService } from 'src/shared/services/temp-2fa.service'
 import { TokenService } from 'src/shared/services/token.service'
 import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type'
 
@@ -25,7 +28,12 @@ import {
   FailedToSendOtpException,
   InvalidOtpException,
   InvalidPasswordException,
+  InvalidTempIdException,
+  InvalidTempSessionException,
+  InvalidTOTPTokenException,
   OtpExpiredException,
+  TOTPAlreadyEnabledException,
+  TOTPNotEnabledException,
 } from './model/auth-error.model'
 
 @Injectable()
@@ -37,6 +45,8 @@ export class AuthService {
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
     private readonly tokenService: TokenService,
+    private readonly twoFactorAuthService: TwoFactorAuthService,
+    private readonly temp2FAService: Temp2FAService,
   ) {}
 
   async validateVerificationCode({ email, type }: { email: string; type: TypeofVerificationCode }) {
@@ -83,26 +93,53 @@ export class AuthService {
   }
 
   async sendOtp(body: SendOtpBodyType) {
-    //1. check email or phone number exists
-    const user = await this.sharedUserRepository.findUnique({ email: body.email })
+    let user: any = null
+    let targetEmail: string
 
-    if (body.type === TypeOfVerificationCode.REGISTER && user) {
-      throw EmailAlreadyExistsException
+    // Handle different OTP types
+    if (body.type === TypeOfVerificationCode.LOGIN_2FA) {
+      // For 2FA, get user from temp session
+      const tempSession = await this.temp2FAService.getTempSession(body.tempSessionId!)
+      if (!tempSession) {
+        throw InvalidTempSessionException
+      }
+
+      const userFromSession = await this.authRepository.findUniqueIncludeRole({ id: tempSession.userId })
+      if (!userFromSession) {
+        throw EmailNotFoundException
+      }
+
+      user = userFromSession
+      targetEmail = userFromSession.email
+    } else {
+      // For other types, use provided email
+      targetEmail = body.email!
+      user = await this.sharedUserRepository.findUnique({ email: targetEmail })
+
+      if (body.type === TypeOfVerificationCode.REGISTER && user) {
+        throw EmailAlreadyExistsException
+      }
+      if (body.type === TypeOfVerificationCode.FORGOT_PASSWORD && !user) {
+        throw EmailNotFoundException
+      }
     }
-    if (body.type === TypeOfVerificationCode.FORGOT_PASSWORD && !user) {
-      throw EmailNotFoundException
-    }
+
     //2. generate otp
     const otpCode = generateRandomCode()
+    const expiresAt =
+      body.type === TypeOfVerificationCode.LOGIN_2FA
+        ? new Date(Date.now() + 5 * 60 * 1000) // 5 minutes for 2FA
+        : addMinutes(new Date(), parseInt(envConfig.OTP_EXPIRATION_MINUTES)) // default for others
 
     await this.authRepository.createVerificationCode({
       code: otpCode,
-      email: body.email,
+      email: targetEmail,
       type: body.type,
-      expiresAt: addMinutes(new Date(), parseInt(envConfig.OTP_EXPIRATION_MINUTES)),
+      expiresAt,
     })
-    //3. send otp to email or phone number
-    const result = await this.emailService.sendOtp({ email: body.email, code: otpCode })
+
+    //3. send otp to email
+    const result = await this.emailService.sendOtp({ email: targetEmail, code: otpCode })
     if (result.error) {
       console.log(result.error)
       throw FailedToSendOtpException
@@ -112,7 +149,8 @@ export class AuthService {
     }
   }
 
-  async login(body: LoginBodyType & { userAgent: string; ip: string }) {
+  async login(body: LoginBodyType & { userAgent: string; ip: string }): Promise<LoginUnionResType> {
+    // Step 1: Validate username and password
     const user = await this.authRepository.findUniqueIncludeRole({ email: body.email })
 
     if (!user) {
@@ -124,6 +162,15 @@ export class AuthService {
     if (!isPasswordValid) {
       throw InvalidPasswordException
     }
+
+    // Step 2: Check if user has 2FA enabled
+    if (user.totpSecret) {
+      // User has 2FA enabled - create temp session and require 2FA verification
+      const tempSessionId = await this.temp2FAService.createTempSession(user.id)
+      return { requires2FA: true, tempSessionId }
+    }
+
+    // Step 3: User doesn't have 2FA - issue tokens normally
     const device = await this.authRepository.createDevice({
       userId: user.id,
       userAgent: body.userAgent,
@@ -131,15 +178,15 @@ export class AuthService {
       isActive: true,
       lastActive: new Date(),
     })
-    console.log('---------------------------------device login:', device)
 
-    const token = await this.generateTokens({
+    const tokens = await this.generateTokens({
       userId: user.id,
       roleId: user.roleId,
       roleName: user.role.name,
       deviceId: device.id,
     })
-    return token
+
+    return tokens
   }
 
   async generateTokens({ roleName, roleId, userId, deviceId }: AccessTokenPayloadCreate) {
@@ -260,5 +307,160 @@ export class AuthService {
 
     // 4. Send success response
     return { message: 'Password has been reset successfully' }
+  }
+
+  async setupTwoFactorAuth(userId: number) {
+    // 1. Check if user exists and 2FA not already enabled
+    const user = await this.sharedUserRepository.findUnique({ id: userId })
+    if (!user) throw EmailNotFoundException
+    if (user.totpSecret) throw TOTPAlreadyEnabledException
+
+    // 2. Generate TOTP secret and URI
+    const { secret, uri } = this.twoFactorAuthService.generateTOTPSecret(user.email)
+
+    // 3. Store secret temporarily in Redis with TTL 300s
+    const tempId = await this.temp2FAService.createTempSecret(userId, secret)
+
+    // 4. Return tempId, secret, and URI to client (secret only returned once here)
+    return { tempId, secret, uri }
+  }
+
+  async activateTwoFactorAuth(userId: number, { tempId, token }: { tempId: string; token: string }) {
+    // 1. Get temporary secret from cache
+    const tempSecret = await this.temp2FAService.getTempSecret(tempId)
+    if (!tempSecret || tempSecret.userId !== userId) {
+      throw InvalidTempIdException
+    }
+
+    // 2. Get user and verify it exists
+    const user = await this.sharedUserRepository.findUnique({ id: userId })
+    if (!user) throw EmailNotFoundException
+
+    // 3. Validate TOTP token with the temporary secret
+    const isTokenValid = this.twoFactorAuthService.verifyTOTP({
+      email: user.email,
+      token,
+      secretBase32: tempSecret.secret,
+    })
+
+    if (!isTokenValid) {
+      throw InvalidTOTPTokenException
+    }
+
+    // 4. If valid, persist the secret to user's record and delete temp key
+    await Promise.all([
+      this.authRepository.updateUser(user.id, { totpSecret: tempSecret.secret }), // TODO: encrypt secret before storing (if existing helper present)
+      this.temp2FAService.deleteTempSecret(tempId),
+    ])
+
+    return { success: true }
+  }
+
+  async verifyTwoFactorAuth(
+    { tempSessionId, token, method = 'totp' }: { tempSessionId: string; token: string; method?: 'totp' | 'email' },
+    { userAgent, ip }: { userAgent: string; ip: string },
+  ) {
+    // 1. Get temporary session from cache
+    const tempSession = await this.temp2FAService.getTempSession(tempSessionId)
+    if (!tempSession) {
+      throw InvalidTempSessionException
+    }
+
+    // 2. Load user
+    const user = await this.authRepository.findUniqueIncludeRole({ id: tempSession.userId })
+    if (!user) {
+      throw EmailNotFoundException
+    }
+
+    // 3. Validate token based on method
+    let isTokenValid = false
+
+    if (method === 'totp') {
+      // For TOTP method, user must have totpSecret
+      if (!user.totpSecret) {
+        throw TOTPNotEnabledException
+      }
+
+      isTokenValid = this.twoFactorAuthService.verifyTOTP({
+        email: user.email,
+        token,
+        secretBase32: user.totpSecret,
+      })
+    } else if (method === 'email') {
+      // For email method, verify OTP code
+      const verificationCode = await this.authRepository.findUniqueVerificationCode({
+        email_type: {
+          email: user.email,
+          type: TypeOfVerificationCode.LOGIN_2FA,
+        },
+      })
+
+      if (!verificationCode || verificationCode.code !== token) {
+        isTokenValid = false
+      } else {
+        // Check if code is not expired (10 minutes = 600000ms)
+        const expireAt = verificationCode.expiresAt.getTime()
+        const now = new Date().getTime()
+        const isExpired = now > expireAt
+        if (isExpired) {
+          throw OtpExpiredException
+        }
+        isTokenValid = true
+
+        // Delete the used verification code
+        if (isTokenValid) {
+          await this.authRepository.deleteVerificationCode({ id: verificationCode.id })
+        }
+      }
+    }
+
+    if (!isTokenValid) {
+      throw method === 'totp' ? InvalidTOTPTokenException : InvalidOtpException
+    }
+
+    // 4. Create device and generate tokens, then delete temp session
+    const device = await this.authRepository.createDevice({
+      userId: user.id,
+      userAgent,
+      ip,
+      isActive: true,
+      lastActive: new Date(),
+    })
+
+    const [tokens] = await Promise.all([
+      this.generateTokens({
+        userId: user.id,
+        roleId: user.roleId,
+        roleName: user.role.name,
+        deviceId: device.id,
+      }),
+      this.temp2FAService.deleteTempSession(tempSessionId),
+    ])
+
+    return tokens
+  }
+
+  async disableTwoFactorAuth(userId: number, { token }: { token: string }) {
+    // 1. Get user and verify they exist and have 2FA enabled
+    const user = await this.sharedUserRepository.findUnique({ id: userId })
+    if (!user || !user.totpSecret) {
+      throw TOTPNotEnabledException
+    }
+
+    // 2. Verify TOTP token against stored secret
+    const isTokenValid = this.twoFactorAuthService.verifyTOTP({
+      email: user.email,
+      token,
+      secretBase32: user.totpSecret,
+    })
+
+    if (!isTokenValid) {
+      throw InvalidTOTPTokenException
+    }
+
+    // 3. If valid, disable 2FA by setting totpSecret to null
+    await this.authRepository.updateUser(user.id, { totpSecret: null })
+
+    return { success: true }
   }
 }

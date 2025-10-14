@@ -11,7 +11,12 @@ import {
   RegisterBodySchema,
   RegisterResSchema,
   SendOtpBodySchema,
+  TwoFactorActivateBodySchema,
+  TwoFactorActivateResSchema,
+  TwoFactorDisableBodySchema,
+  TwoFactorDisableResSchema,
   TwoFactorSetupResSchema,
+  TwoFactorVerifyBodySchema,
 } from 'src/modules/auth/model/auth.model'
 
 export class RegisterBodyDto extends createZodDto(RegisterBodySchema) {}
@@ -35,3 +40,13 @@ export class ForgotPasswordBodyDto extends createZodDto(ForgotPasswordBodySchema
 export class TwoFactorSetupResDto extends createZodDto(TwoFactorSetupResSchema) {}
 
 export class DisableTwoFactorBodyDto extends createZodDto(DisableTwoFactorBodySchema) {}
+
+export class TwoFactorActivateBodyDto extends createZodDto(TwoFactorActivateBodySchema) {}
+
+export class TwoFactorActivateResDto extends createZodDto(TwoFactorActivateResSchema) {}
+
+export class TwoFactorVerifyBodyDto extends createZodDto(TwoFactorVerifyBodySchema) {}
+
+export class TwoFactorDisableResDto extends createZodDto(TwoFactorDisableResSchema) {}
+
+export class TwoFactorDisableBodyDto extends createZodDto(TwoFactorDisableBodySchema) {}

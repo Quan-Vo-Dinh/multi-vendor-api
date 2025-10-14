@@ -1,3 +1,5 @@
+import KeyvRedis from '@keyv/redis'
+import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor } from 'nestjs-zod'
@@ -12,7 +14,17 @@ import { AuthModule } from './modules/auth/auth.module'
 import { SharedModule } from './shared/shared.module'
 
 @Module({
-  imports: [SharedModule, AuthModule],
+  imports: [
+    CacheModule.registerAsync({
+      useFactory: () => {
+        return {
+          stores: [new KeyvRedis('redis://localhost:6379')],
+        }
+      },
+    }),
+    SharedModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [
     AppService,
