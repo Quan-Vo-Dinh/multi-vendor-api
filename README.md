@@ -8,59 +8,15 @@ The system serves three distinct user roles with comprehensive feature sets for 
 > **Status:** This repository is actively under development. Some sections are temporarily commented out while implementation is in progress.
 
 ### Principal Sponsors
-
-<table cellpadding="8" cellspacing="0" style="border:1px solid #e6edf3;border-radius:10px;padding:12px;">
-  <tr>
-    <td align="center" style="vertical-align:middle;">
-      <a href="https://nestjs.com" target="_blank" rel="noopener noreferrer">
-        <img src="https://cdn.simpleicons.org/nestjs" width="64" alt="NestJS" style="vertical-align:middle;">
-      </a>
-    </td>
-    <td align="center" style="vertical-align:middle;">
-      <a href="https://www.postgresql.org" target="_blank" rel="noopener noreferrer">
-        <img src="https://cdn.simpleicons.org/postgresql" width="64" alt="PostgreSQL" style="vertical-align:middle;">
-      </a>
-    </td>
-    <td align="center" style="vertical-align:middle;">
-      <a href="https://www.typescriptlang.org" target="_blank" rel="noopener noreferrer">
-        <img src="https://cdn.simpleicons.org/typescript" width="64" alt="TypeScript" style="vertical-align:middle;">
-      </a>
-    </td>
-    <td align="center" style="vertical-align:middle;">
-      <a href="https://www.prisma.io" target="_blank" rel="noopener noreferrer">
-        <img src="https://cdn.simpleicons.org/prisma" width="64" alt="Prisma" style="vertical-align:middle;">
-      </a>
-    </td>
-    <td align="center" style="vertical-align:middle;">
-      <a href="https://resend.com" target="_blank" rel="noopener noreferrer">
-        <img src="https://cdn.simpleicons.org/resend" width="64" alt="Resend" style="vertical-align:middle;">
-      </a>
-    </td>
-    <td align="center" style="vertical-align:middle;">
-      <a href="https://aws.amazon.com/s3/" target="_blank" rel="noopener noreferrer">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/b/bc/Amazon-S3-Logo.svg" width="64" alt="AWS S3" style="vertical-align:middle;">
-      </a>
-    </td>
-    <td align="center" style="vertical-align:middle;">
-      <a href="https://redis.io" target="_blank" rel="noopener noreferrer">
-        <img src="https://cdn.simpleicons.org/redis" width="64" alt="Redis" style="vertical-align:middle;">
-      </a>
-    </td>
-    <td align="center" style="vertical-align:middle;">
-      <a href="https://docs.bullmq.io" target="_blank" rel="noopener noreferrer">
-        <!-- upload assets/logos/bullmq.svg then this jsDelivr link will work -->
-        <img src="https://user-images.githubusercontent.com/95200/143832033-32e868df-f3b0-4251-97fb-c64809a43d36.png" width="150" alt="BullMQ" style="vertical-align:middle;">
-      </a>
-    </td>
-    <td align="center" style="vertical-align:middle;">
-      <a href="https://sepay.vn" target="_blank" rel="noopener noreferrer">
-        <!-- upload assets/logos/sepay.svg then this jsDelivr link will work -->
-        <img src="https://sepay.vn//assets/img/logo/sepay-blue-154x50.png" width="150" alt="Sepay" style="vertical-align:middle;">
-      </a>
-    </td>
-  </tr>
-</table>
-
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Resend](https://img.shields.io/badge/Resend-000000?style=for-the-badge&logo=resend&logoColor=white)](https://resend.com/)
+[![AWS S3](https://img.shields.io/badge/AWS%20S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white)](https://aws.amazon.com/s3/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![BullMQ](https://img.shields.io/badge/BullMQ-E02020?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://docs.bullmq.io/)
+[![Sepay](https://img.shields.io/badge/Sepay-0078FF?style=for-the-badge&logo=paypal&logoColor=white)](https://sepay.vn/)
 ---
 
 ### Role-Based System Architecture
