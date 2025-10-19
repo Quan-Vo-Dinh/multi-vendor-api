@@ -1,14 +1,30 @@
 import fs from 'fs'
 import path from 'path'
 
-import { config } from 'dotenv'
+import { config as dotenvConfig } from 'dotenv'
 import z from 'zod'
 
-config()
+// try load .env.local, .env.<NODE_ENV>, then .env (first found)
+const envCandidates = [
+  path.resolve('.env.local'),
+  path.resolve(`.env.${process.env.NODE_ENV || 'development'}`),
+  path.resolve('.env'),
+]
 
-if (!fs.existsSync(path.resolve('.env'))) {
-  console.warn('.env file does not exist. Please create one based on .env.example')
-  process.exit(1)
+let loadedFile: string | null = null
+for (const p of envCandidates) {
+  if (fs.existsSync(p)) {
+    dotenvConfig({ path: p })
+    loadedFile = p
+    break
+  }
+}
+
+// Optional: warn if none loaded but environment variables exist
+if (!loadedFile) {
+  console.warn('No .env file loaded (checked .env.local, .env.$NODE_ENV, .env). Relying on process.env.')
+} else {
+  console.info(`Loaded environment file: ${loadedFile}`)
 }
 
 const configSchemaZod = z.object({
@@ -27,7 +43,6 @@ const configSchemaZod = z.object({
   OTP_EXPIRATION_MINUTES: z.string().min(1, { message: 'OTP_EXPIRATION_MINUTES is required' }),
   RESEND_API_KEY: z.string().min(1, { message: 'RESEND_API_KEY is required' }),
   APP_NAME: z.string().min(1, { message: 'APP_NAME is required' }),
-  REDIS_URL: z.string().min(1, { message: 'REDIS_URL is required' }),
 })
 
 const configServer = configSchemaZod.safeParse(process.env)
