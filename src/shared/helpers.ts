@@ -1,6 +1,8 @@
 import { randomInt } from 'crypto'
+import path from 'path'
 
 import { Prisma } from '@prisma/client'
+import { v4 as uuidv4 } from 'uuid'
 
 // Type Predicates for Prisma errors
 export function isUniqueConstraintPrismaError(error: any): error is Prisma.PrismaClientKnownRequestError {
@@ -30,4 +32,9 @@ export function isNonEmptyString(value: any): value is string {
 
 export const generateRandomCode = (): string => {
   return randomInt(100000, 1000000).toString()
+}
+
+export const generateRandomFileName = (originalName: string): string => {
+  const fileExtension = path.extname(originalName)
+  return `${uuidv4()}${fileExtension}`
 }

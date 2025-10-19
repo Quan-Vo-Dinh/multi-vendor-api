@@ -12,6 +12,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './modules/auth/auth.module'
 import { LanguageModule } from './modules/language/language.module'
+import { MediaModule } from './modules/media/media.module'
 import { SharedModule } from './shared/shared.module'
 
 @Module({
@@ -26,6 +27,7 @@ import { SharedModule } from './shared/shared.module'
     SharedModule,
     AuthModule,
     LanguageModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [
