@@ -1,4 +1,5 @@
 import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { addMinutes } from 'date-fns'
 
 import {
@@ -11,7 +12,7 @@ import {
 } from 'src/modules/auth/model/auth.model'
 import { AuthRepository } from 'src/modules/auth/repo/auth.repo'
 import { RolesService } from 'src/modules/auth/roles.service'
-import { envConfig } from 'src/shared/config'
+import type { EnvConfig } from 'src/shared/config'
 import { TypeofVerificationCode, TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
 import { generateRandomCode, isRecordNotFoundError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
@@ -38,6 +39,8 @@ import {
 
 @Injectable()
 export class AuthService {
+  private readonly otpExpirationMinutes: number
+
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly hashingService: HashingService,
@@ -47,7 +50,10 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly twoFactorAuthService: TwoFactorAuthService,
     private readonly temp2FAService: Temp2FAService,
-  ) {}
+    private readonly configService: ConfigService<EnvConfig>,
+  ) {
+    this.otpExpirationMinutes = this.configService.get('OTP_EXPIRATION_MINUTES', { infer: true }) ?? 5
+  }
 
   async validateVerificationCode({ email, type }: { email: string; type: TypeofVerificationCode }) {
     const verificationCode = await this.authRepository.findUniqueVerificationCode({ email_type: { email, type } })
@@ -129,7 +135,7 @@ export class AuthService {
     const expiresAt =
       body.type === TypeOfVerificationCode.LOGIN_2FA
         ? new Date(Date.now() + 5 * 60 * 1000) // 5 minutes for 2FA
-        : addMinutes(new Date(), parseInt(envConfig.OTP_EXPIRATION_MINUTES)) // default for others
+        : addMinutes(new Date(), this.otpExpirationMinutes) // default for others
 
     await this.authRepository.createVerificationCode({
       code: otpCode,

@@ -1,7 +1,18 @@
-import { envConfig } from 'src/shared/config'
+import { resolve } from 'path'
+
+import { config } from 'dotenv'
+
+import { validateEnv } from 'src/shared/config'
 import { RoleName } from 'src/shared/constants/role.constant'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { PrismaService } from 'src/shared/services/prisma.service'
+
+// Load environment variables
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env'
+config({ path: resolve(process.cwd(), envFile) })
+
+// Validate environment variables
+const envConfig = validateEnv(process.env)
 
 const prisma = new PrismaService()
 const hashingService = new HashingService()
