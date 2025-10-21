@@ -43,7 +43,12 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
+<<<<<<< HEAD
           PROJECT_NAME: ${{ env.PROJECT_NAME }}
           WORKING_DIR: ${{ env.WORKING_DIR }}
         run: |
           ssh -p $VPS_PORT $VPS_USER@$VPS_HOST "PROJECT_NAME=$PROJECT_NAME WORKING_DIR=$WORKING_DIR bash ~/deploy.sh"
+=======
+        run: |
+          ssh -p $VPS_PORT $VPS_USER@$VPS_HOST "bash ~/deploy.sh"
+>>>>>>> f19499d8b3cc477d30ad2a2c8578e224c8d08c7f
