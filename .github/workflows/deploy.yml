@@ -41,9 +41,13 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT }}
           WORKING_DIR: ${{ env.WORKING_DIR }}
         run: |
-          ssh -p $VPS_PORT $VPS_USER@$VPS_HOST << 'ENDSSH'
+          ssh -p $VPS_PORT $VPS_USER@$VPS_HOST << ENDSSH
             set -e
+            echo "==> Connected to \$HOSTNAME"
+            echo "==> Changing directory to: $WORKING_DIR"
             cd $WORKING_DIR
+            echo "==> Current path: \$(pwd)"
+            
             git fetch origin main
             git reset --hard origin/main
             npm ci
@@ -53,3 +57,4 @@ jobs:
             pm2 restart multi-vendor --update-env || pm2 start ecosystem.config.js --env production
             pm2 save
           ENDSSH
+
