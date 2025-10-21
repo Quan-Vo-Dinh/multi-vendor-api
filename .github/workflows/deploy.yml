@@ -17,7 +17,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      - run: npm ci --only=production
+      - run: npm ci
       - run: npx prisma generate
       - run: npm run build
 
@@ -46,7 +46,7 @@ jobs:
             cd $WORKING_DIR
             git fetch origin main
             git reset --hard origin/main
-            npm ci --only=production
+            npm ci
             npx prisma generate
             npx prisma migrate deploy
             npm run build
