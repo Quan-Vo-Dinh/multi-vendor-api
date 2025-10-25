@@ -15,6 +15,7 @@ import { AppService } from './app.service'
 import { AuthModule } from './modules/auth/auth.module'
 import { LanguageModule } from './modules/language/language.module'
 import { MediaModule } from './modules/media/media.module'
+import { PermissionModule } from './modules/permission/permission.module'
 import { SharedModule } from './shared/shared.module'
 
 @Module({
@@ -43,6 +44,7 @@ import { SharedModule } from './shared/shared.module'
     AuthModule,
     LanguageModule,
     MediaModule,
+    PermissionModule,
   ],
   controllers: [AppController],
   providers: [
