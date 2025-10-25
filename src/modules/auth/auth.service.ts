@@ -1,5 +1,6 @@
 import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Prisma } from '@prisma/client'
 import { addMinutes } from 'date-fns'
 
 import {
@@ -76,14 +77,18 @@ export class AuthService {
       const clientRoleId = await this.rolesService.getClientRoleId()
       const hashedPassword = await this.hashingService.hash(body.password)
 
+      const userDataToCreate: Prisma.UserCreateInput = {
+        name: body.name,
+        email: body.email,
+        phoneNumber: body.phoneNumber,
+        password: hashedPassword,
+        role: {
+          connect: { id: clientRoleId },
+        },
+      }
+
       const [user] = await Promise.all([
-        this.authRepository.createUser({
-          name: body.name,
-          email: body.email,
-          phoneNumber: body.phoneNumber,
-          password: hashedPassword,
-          roleId: clientRoleId,
-        }),
+        this.authRepository.createUser(userDataToCreate),
         this.authRepository.deleteVerificationCode({
           email_type: { email: body.email, type: TypeOfVerificationCode.REGISTER },
         }),
@@ -243,10 +248,12 @@ export class AuthService {
         },
       } = refreshTokenInDb
 
-      const $updateDevice = this.authRepository.updateDevice(deviceId, {
+      const deviceDataToUpdate: Prisma.DeviceUpdateInput = {
         ip,
         userAgent,
-      })
+      }
+
+      const $updateDevice = this.authRepository.updateDevice(deviceId, deviceDataToUpdate)
 
       // Xóa old refresh token sau khi tạo thành công token mới
       const $deleteOldRefreshToken = this.authRepository.deleteRefreshToken({ token: refreshToken })
@@ -277,7 +284,12 @@ export class AuthService {
       const deletedToken = await this.authRepository.deleteRefreshToken({ token: refreshToken })
       const deviceId = deletedToken.deviceId
       console.log('deletedToken:--------------------------------', deletedToken)
-      await this.authRepository.updateDevice(deviceId, { isActive: false })
+
+      const deviceDataToUpdate: Prisma.DeviceUpdateInput = {
+        isActive: false,
+      }
+
+      await this.authRepository.updateDevice(deviceId, deviceDataToUpdate)
 
       return { message: 'Logged out successfully' }
     } catch (error) {
@@ -304,8 +316,13 @@ export class AuthService {
 
     // 3. Update the user's password & delete used OTP
     const hashedPassword = await this.hashingService.hash(body.newPassword)
+
+    const userDataToUpdate: Prisma.UserUpdateInput = {
+      password: hashedPassword,
+    }
+
     await Promise.all([
-      this.authRepository.updateUser(user.id, { password: hashedPassword }),
+      this.authRepository.updateUser(user.id, userDataToUpdate),
       this.authRepository.deleteVerificationCode({
         email_type: { email: body.email, type: TypeOfVerificationCode.FORGOT_PASSWORD },
       }),
@@ -354,8 +371,12 @@ export class AuthService {
     }
 
     // 4. If valid, persist the secret to user's record and delete temp key
+    const userDataToUpdate: Prisma.UserUpdateInput = {
+      totpSecret: tempSecret.secret, // TODO: encrypt secret before storing (if existing helper present)
+    }
+
     await Promise.all([
-      this.authRepository.updateUser(user.id, { totpSecret: tempSecret.secret }), // TODO: encrypt secret before storing (if existing helper present)
+      this.authRepository.updateUser(user.id, userDataToUpdate),
       this.temp2FAService.deleteTempSecret(tempId),
     ])
 
@@ -465,7 +486,11 @@ export class AuthService {
     }
 
     // 3. If valid, disable 2FA by setting totpSecret to null
-    await this.authRepository.updateUser(user.id, { totpSecret: null })
+    const userDataToUpdate: Prisma.UserUpdateInput = {
+      totpSecret: null,
+    }
+
+    await this.authRepository.updateUser(user.id, userDataToUpdate)
 
     return { success: true }
   }

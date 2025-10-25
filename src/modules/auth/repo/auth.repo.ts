@@ -1,23 +1,16 @@
 import { Injectable } from '@nestjs/common'
+import type { Prisma } from '@prisma/client'
 
-import {
-  DeviceType,
-  RefreshTokenType,
-  RegisterBodyType,
-  RoleType,
-  VerificationCodeType,
-} from 'src/modules/auth/model/auth.model'
+import type { DeviceType, RefreshTokenType, RoleType, VerificationCodeType } from 'src/modules/auth/model/auth.model'
 import { TypeofVerificationCode } from 'src/shared/constants/auth.constant'
-import { UserType } from 'src/shared/models/shared-user.model'
+import type { UserType } from 'src/shared/models/shared-user.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()
 export class AuthRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  createUser(
-    user: Omit<RegisterBodyType, 'confirmPassword' | 'code'> & Pick<UserType, 'roleId'>,
-  ): Promise<Omit<UserType, 'password' | 'totpSecret'>> {
+  createUser(user: Prisma.UserCreateInput): Promise<Omit<UserType, 'password' | 'totpSecret'>> {
     return this.prismaService.user.create({
       data: user,
       omit: { password: true, totpSecret: true },
@@ -83,7 +76,7 @@ export class AuthRepository {
     })
   }
 
-  updateDevice(deviceId: number, data: Partial<DeviceType>) {
+  updateDevice(deviceId: number, data: Prisma.DeviceUpdateInput) {
     return this.prismaService.device.update({
       where: { id: deviceId },
       data,
@@ -102,7 +95,7 @@ export class AuthRepository {
     })
   }
 
-  updateUser(userId: number, data: Partial<Omit<UserType, 'id'>>): Promise<UserType> {
+  updateUser(userId: number, data: Prisma.UserUpdateInput): Promise<UserType> {
     return this.prismaService.user.update({
       where: { id: userId },
       data,

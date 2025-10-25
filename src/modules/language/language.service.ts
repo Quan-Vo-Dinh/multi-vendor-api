@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Prisma } from '@prisma/client'
 
 import { LanguageIdAlreadyExistsException, LanguageNotFoundException } from './model/language-error.model'
 import type { CreateLanguageBodyType, UpdateLanguageBodyType } from './model/language-request.model'
@@ -41,10 +42,15 @@ export class LanguageService {
       throw LanguageIdAlreadyExistsException
     }
 
-    const language = await this.languageRepository.create({
-      ...body,
-      createdById: userId,
-    })
+    const dataToCreate: Prisma.LanguageCreateInput = {
+      id: body.id,
+      name: body.name,
+      createdBy: {
+        connect: { id: userId },
+      },
+    }
+
+    const language = await this.languageRepository.create(dataToCreate)
 
     return {
       data: language,
@@ -58,10 +64,14 @@ export class LanguageService {
       throw LanguageNotFoundException
     }
 
-    const updatedLanguage = await this.languageRepository.update(languageId, {
-      ...body,
-      updatedById: userId,
-    })
+    const dataToUpdate: Prisma.LanguageUpdateInput = {
+      name: body.name,
+      updatedBy: {
+        connect: { id: userId },
+      },
+    }
+
+    const updatedLanguage = await this.languageRepository.update(languageId, dataToUpdate)
 
     return {
       data: updatedLanguage,

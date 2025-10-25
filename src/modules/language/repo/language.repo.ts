@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
+import type { Prisma } from '@prisma/client'
 
 import type { LanguageEntityType } from 'src/modules/language/model/language-entity.model'
-import type { CreateLanguageBodyType, UpdateLanguageBodyType } from 'src/modules/language/model/language-request.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
 
 @Injectable()
@@ -43,14 +43,14 @@ export class LanguageRepository {
   }
 
   // Create new language
-  create(data: CreateLanguageBodyType & { createdById: number }): Promise<LanguageEntityType> {
+  create(data: Prisma.LanguageCreateInput): Promise<LanguageEntityType> {
     return this.prismaService.language.create({
       data,
     })
   }
 
   // Update language
-  update(id: string, data: Partial<UpdateLanguageBodyType> & { updatedById: number }): Promise<LanguageEntityType> {
+  update(id: string, data: Prisma.LanguageUpdateInput): Promise<LanguageEntityType> {
     return this.prismaService.language.update({
       where: { id },
       data,
