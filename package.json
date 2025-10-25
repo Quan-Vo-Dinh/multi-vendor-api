@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "init:seed-data": "ts-node initial-script",
+    "init:seed-data": "ts-node scripts",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
