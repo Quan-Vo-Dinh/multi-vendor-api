@@ -11,4 +11,5 @@
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "dbmlERDPreviewer.preferredTheme": "dark",
 }
