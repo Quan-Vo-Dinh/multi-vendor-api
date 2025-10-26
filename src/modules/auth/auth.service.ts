@@ -16,6 +16,7 @@ import { RolesService } from 'src/modules/auth/roles.service'
 import type { EnvConfig } from 'src/shared/config'
 import { TypeofVerificationCode, TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
 import { generateRandomCode, isRecordNotFoundError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
+import type { UserType } from 'src/shared/models/shared-user.model'
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service'
 import { EmailService } from 'src/shared/services/email.service'
@@ -104,7 +105,7 @@ export class AuthService {
   }
 
   async sendOtp(body: SendOtpBodyType) {
-    let user: any = null
+    let user: UserType | null = null
     let targetEmail: string
 
     // Handle different OTP types
