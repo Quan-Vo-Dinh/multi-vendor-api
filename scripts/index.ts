@@ -49,7 +49,7 @@ const main = async () => {
 
     let rolesCreated = 0
     for (const roleData of rolesData) {
-      const existingRole = await prisma.role.findUnique({
+      const existingRole = await prisma.role.findFirst({
         where: { name: roleData.name },
       })
 
@@ -65,7 +65,7 @@ const main = async () => {
     }
 
     // Get admin role for user creation
-    const adminRole = await prisma.role.findUnique({
+    const adminRole = await prisma.role.findFirst({
       where: { name: 'super_admin' },
     })
 

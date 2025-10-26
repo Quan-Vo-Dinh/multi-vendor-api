@@ -233,7 +233,7 @@ function shouldExcludeRoute(route: RouteDefinition): boolean {
   return excludedPatterns.some((pattern) => pattern.test(route.path))
 }
 
-/**
+/**`
  * Generate permissions from scanned routes
  */
 function generatePermissionsFromRoutes(): Array<{
