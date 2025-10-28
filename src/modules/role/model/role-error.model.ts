@@ -1,4 +1,4 @@
-import { ConflictException, NotFoundException, UnprocessableEntityException } from '@nestjs/common'
+import { ConflictException, ForbiddenException, NotFoundException, UnprocessableEntityException } from '@nestjs/common'
 
 export const RoleNotFoundException = new NotFoundException([
   {
@@ -25,5 +25,19 @@ export const InvalidPermissionIdsException = new UnprocessableEntityException([
   {
     message: 'Error.InvalidPermissionIds',
     path: 'permissionIds',
+  },
+])
+
+export const ProhibitedRoleDeletionException = new ForbiddenException([
+  {
+    message: 'Error.ProhibitedRoleDeletion',
+    path: 'roleId',
+  },
+])
+
+export const ProhibitedRoleUpdateException = new ForbiddenException([
+  {
+    message: 'Error.ProhibitedRoleUpdate',
+    path: 'roleId',
   },
 ])

@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 
+import { RoleName } from 'src/shared/constants/role.constant'
+
 import {
   InvalidPermissionIdsException,
+  ProhibitedRoleDeletionException,
+  ProhibitedRoleUpdateException,
   RoleNameAlreadyExistsException,
   RoleNotFoundException,
 } from './model/role-error.model'
@@ -90,10 +94,14 @@ export class RoleService {
   }
 
   async update(roleId: number, body: UpdateRoleBodyType, userId: number): Promise<UpdateRoleResType> {
-    // Check if role exists
     const existingRole = await this.roleRepository.findById(roleId)
     if (!existingRole) {
       throw RoleNotFoundException
+    }
+
+    // Không cho phép bất kỳ ai cập nhật Super Admin role
+    if (existingRole.name === RoleName.SUPER_ADMIN) {
+      throw ProhibitedRoleUpdateException
     }
 
     // If updating name, check for conflicts
@@ -138,10 +146,14 @@ export class RoleService {
   }
 
   async remove(roleId: number, userId: number): Promise<{ message: string }> {
-    // Check if role exists
     const existingRole = await this.roleRepository.findById(roleId)
     if (!existingRole) {
       throw RoleNotFoundException
+    }
+    // không cho phép xóa 4 role cơ bản: Super Admin, Admin, Seller, Customer
+    const baseRoles: string[] = [RoleName.ADMIN, RoleName.SUPER_ADMIN, RoleName.SELLER, RoleName.CUSTOMER]
+    if (baseRoles.includes(existingRole.name)) {
+      throw ProhibitedRoleDeletionException
     }
 
     await this.roleRepository.softDelete(roleId, userId)
