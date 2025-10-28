@@ -6,7 +6,7 @@ export const UserSchema = z.object({
   id: z.number().int().positive(),
   email: z.email(),
   name: z.string().min(1),
-  password: z.string().min(6), // adjust min length as needed
+  password: z.string().min(6),
   phoneNumber: z.string().min(10),
   avatar: z.string().nullable(),
   totpSecret: z.string().nullable(),

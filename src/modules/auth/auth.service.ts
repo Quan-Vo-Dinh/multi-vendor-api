@@ -12,11 +12,11 @@ import {
   SendOtpBodyType,
 } from 'src/modules/auth/model/auth.model'
 import { AuthRepository } from 'src/modules/auth/repo/auth.repo'
-import { RolesService } from 'src/modules/auth/roles.service'
 import type { EnvConfig } from 'src/shared/config'
 import { TypeofVerificationCode, TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
 import { generateRandomCode, isRecordNotFoundError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import type { UserType } from 'src/shared/models/shared-user.model'
+import { SharedRoleRepository } from 'src/shared/repositories/shared-role.repo'
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
 import { TwoFactorAuthService } from 'src/shared/services/2fa.service'
 import { EmailService } from 'src/shared/services/email.service'
@@ -46,7 +46,7 @@ export class AuthService {
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly hashingService: HashingService,
-    private readonly rolesService: RolesService,
+    private readonly sharedRoleUserRepository: SharedRoleRepository,
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly emailService: EmailService,
     private readonly tokenService: TokenService,
@@ -75,7 +75,7 @@ export class AuthService {
         type: TypeOfVerificationCode.REGISTER,
       })
 
-      const clientRoleId = await this.rolesService.getClientRoleId()
+      const clientRoleId = await this.sharedRoleUserRepository.getSellerRoleId()
       const hashedPassword = await this.hashingService.hash(body.password)
 
       const userDataToCreate: Prisma.UserCreateInput = {

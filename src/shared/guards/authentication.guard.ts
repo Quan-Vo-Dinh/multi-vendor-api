@@ -67,7 +67,6 @@ export class AuthenticationGuard implements CanActivate {
       })
     }
 
-    // AND: tất cả phải pass
     if (results.every((r) => r.success)) {
       return true
     }
