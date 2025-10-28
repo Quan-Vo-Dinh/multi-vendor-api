@@ -38,7 +38,7 @@ export class AuthenticationGuard implements CanActivate {
       return { type, guard }
     })
 
-    const results: { type: string; success: boolean; error?: any }[] = await Promise.all(
+    const results: { type: string; success: boolean; error?: Error }[] = await Promise.all(
       guards.map(async ({ type, guard }) => {
         try {
           let success = await guard.canActivate(context)
@@ -48,7 +48,7 @@ export class AuthenticationGuard implements CanActivate {
           }
           return { type, success }
         } catch (error) {
-          return { type, success: false, error }
+          return { type, success: false, error: error as Error }
         }
       }),
     )

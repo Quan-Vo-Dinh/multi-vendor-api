@@ -10,6 +10,8 @@ import { EmailService } from 'src/shared/services/email.service'
 import { AccessTokenGuard } from './guards/access-token.guard'
 import { APIKeyGuard } from './guards/api-key.guard'
 import { AuthenticationGuard } from './guards/authentication.guard'
+import { AuthorizationGuard } from './guards/authorization.guard'
+import { PermissionStrategy } from './guards/strategies/permission.strategy'
 import { TwoFactorAuthService } from './services/2fa.service'
 import { HashingService } from './services/hashing.service'
 import { PrismaService } from './services/prisma.service'
@@ -22,6 +24,7 @@ const sharedServices = [
   TokenService,
   AccessTokenGuard,
   APIKeyGuard,
+  PermissionStrategy,
   EmailService,
   TwoFactorAuthService,
   Temp2FAService,
@@ -34,6 +37,10 @@ const sharedServices = [
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthorizationGuard,
     },
   ],
   exports: sharedServices,

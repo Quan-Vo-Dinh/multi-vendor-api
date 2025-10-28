@@ -20,6 +20,7 @@ import {
 import { LoginUnionResType } from 'src/modules/auth/model/auth.model'
 import { ActiveUser } from 'src/shared/decorators/active-user.decorator'
 import { IsPublic } from 'src/shared/decorators/auth.decorator'
+import { SkipAuthorization } from 'src/shared/decorators/skip-authorization.decorator'
 import { UserAgent } from 'src/shared/decorators/user-agent.decorator'
 import { EmptyBodyDto } from 'src/shared/dtos/request.dto'
 import { MessageResDto } from 'src/shared/dtos/response.dto'
@@ -36,6 +37,7 @@ export class AuthController {
   register(@Body() body: RegisterBodyDto) {
     return this.authService.register(body)
   }
+
   @Post('otp')
   @IsPublic()
   @ZodSerializerDto(MessageResDto)
@@ -65,6 +67,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @SkipAuthorization()
   @HttpCode(HttpStatus.OK)
   @ZodSerializerDto(MessageResDto)
   logout(@Body() body: LogoutBodyDto) {
@@ -79,12 +82,14 @@ export class AuthController {
   }
 
   @Post('2fa/setup')
+  @SkipAuthorization()
   @ZodSerializerDto(TwoFactorSetupResDto)
   setupTwoFactorAuth(@Body() _: EmptyBodyDto, @ActiveUser('userId') userId: number) {
     return this.authService.setupTwoFactorAuth(userId)
   }
 
   @Post('2fa/activate')
+  @SkipAuthorization()
   @ZodSerializerDto(TwoFactorActivateResDto)
   activateTwoFactorAuth(@Body() body: TwoFactorActivateBodyDto, @ActiveUser('userId') userId: number) {
     return this.authService.activateTwoFactorAuth(userId, body)
@@ -98,6 +103,7 @@ export class AuthController {
   }
 
   @Post('2fa/disable')
+  @SkipAuthorization()
   @ZodSerializerDto(TwoFactorDisableResDto)
   disableTwoFactorAuth(@Body() body: TwoFactorDisableBodyDto, @ActiveUser('userId') userId: number) {
     return this.authService.disableTwoFactorAuth(userId, body)
