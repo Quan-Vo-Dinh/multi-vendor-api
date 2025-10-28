@@ -488,6 +488,72 @@ async function main() {
     }
 
     // ============================================================
+    // PHASE 4: ASSIGN ALL PERMISSIONS TO ADMIN ROLES
+    // ============================================================
+    console.log('='.repeat(70))
+    console.log('👑 PHASE 4: ASSIGN - Updating admin roles with all permissions')
+    console.log('='.repeat(70))
+    console.log('\n')
+
+    // Get all active permissions after sync
+    const allActivePermissions = await prisma.permission.findMany({
+      where: {
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    const permissionIds = allActivePermissions.map((p) => p.id)
+
+    console.log(`📋 Total active permissions: ${permissionIds.length}\n`)
+
+    // Get super_admin and admin roles
+    const adminRoles = await prisma.role.findMany({
+      where: {
+        name: {
+          in: ['super_admin', 'admin'],
+        },
+        deletedAt: null,
+      },
+    })
+
+    if (adminRoles.length === 0) {
+      console.log('⚠️  No admin roles found. Skipping permission assignment.\n')
+    } else {
+      console.log(`🔍 Found ${adminRoles.length} admin role(s) to update:\n`)
+
+      let assignedCount = 0
+      let assignErrorCount = 0
+
+      for (const role of adminRoles) {
+        try {
+          await prisma.role.update({
+            where: { id: role.id },
+            data: {
+              permissions: {
+                set: [], // Clear existing permissions first
+                connect: permissionIds.map((id) => ({ id })), // Connect all permissions
+              },
+              updatedBy: {
+                connect: { id: adminUser.id },
+              },
+            },
+          })
+
+          console.log(`   ✅ Assigned ${permissionIds.length} permissions to role: ${role.name}`)
+          assignedCount++
+        } catch (error) {
+          console.error(`   ❌ Error assigning permissions to "${role.name}":`, error)
+          assignErrorCount++
+        }
+      }
+
+      console.log(`\n✅ Assignment completed: ${assignedCount} roles updated, ${assignErrorCount} errors\n`)
+    }
+
+    // ============================================================
     // FINAL SUMMARY
     // ============================================================
     console.log('='.repeat(70))
@@ -500,6 +566,7 @@ async function main() {
     console.log(`🗑️  Obsolete permissions deleted:  ${deletedCount}`)
     console.log(`➕ New permissions created:        ${createdCount}`)
     console.log(`🔄 Existing permissions updated:   ${updatedCount}`)
+    console.log(`👑 Admin roles updated:            ${adminRoles.length}`)
     console.log('\n')
     console.log(`❌ Total errors:                   ${deleteErrorCount + createErrorCount + updateErrorCount}`)
     console.log('\n')
