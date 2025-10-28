@@ -1,5 +1,7 @@
 import z from 'zod'
 
+import { LanguageIdParamSchema, type LanguageIdParamType } from 'src/shared/models/request.model'
+
 // Create Language Request Schema
 export const CreateLanguageBodySchema = z.object({
   id: z.string().min(1, 'Language ID is required').max(10, 'Language ID must be at most 10 characters'),
@@ -15,9 +17,5 @@ export const UpdateLanguageBodySchema = z.object({
 
 export type UpdateLanguageBodyType = z.infer<typeof UpdateLanguageBodySchema>
 
-// Language ID Param Schema
-export const LanguageIdParamSchema = z.object({
-  languageId: z.string().min(1, 'Language ID is required'),
-})
-
-export type LanguageIdParamType = z.infer<typeof LanguageIdParamSchema>
+// Re-export shared schema for backward compatibility
+export { LanguageIdParamSchema, type LanguageIdParamType }

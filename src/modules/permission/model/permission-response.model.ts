@@ -1,40 +1,32 @@
 import z from 'zod'
 
+import {
+  PaginationMetaSchema,
+  createDataResponseSchema,
+  createPaginatedResponseSchema,
+} from 'src/shared/models/response.model'
+
 import { PermissionSchema } from './permission-entity.model'
 
-// Paginated Response Metadata Schema
-export const PaginationMetaSchema = z.object({
-  totalItems: z.number().int().min(0),
-  currentPage: z.number().int().min(1),
-  totalPages: z.number().int().min(0),
-  itemsPerPage: z.number().int().min(1),
-})
-
 // Get All Permissions Response Schema (with pagination)
-export const GetAllPermissionsResSchema = z.object({
-  data: z.array(PermissionSchema),
-  meta: PaginationMetaSchema,
-})
+export const GetAllPermissionsResSchema = createPaginatedResponseSchema(PermissionSchema)
 
 export type GetAllPermissionsResType = z.infer<typeof GetAllPermissionsResSchema>
 
 // Get Permission Detail Response Schema
-export const GetPermissionDetailResSchema = z.object({
-  data: PermissionSchema,
-})
+export const GetPermissionDetailResSchema = createDataResponseSchema(PermissionSchema)
 
 export type GetPermissionDetailResType = z.infer<typeof GetPermissionDetailResSchema>
 
 // Create Permission Response Schema
-export const CreatePermissionResSchema = z.object({
-  data: PermissionSchema,
-})
+export const CreatePermissionResSchema = createDataResponseSchema(PermissionSchema)
 
 export type CreatePermissionResType = z.infer<typeof CreatePermissionResSchema>
 
 // Update Permission Response Schema
-export const UpdatePermissionResSchema = z.object({
-  data: PermissionSchema,
-})
+export const UpdatePermissionResSchema = createDataResponseSchema(PermissionSchema)
 
 export type UpdatePermissionResType = z.infer<typeof UpdatePermissionResSchema>
+
+// Re-export for backward compatibility
+export { PaginationMetaSchema }

@@ -1,5 +1,12 @@
 import z from 'zod'
 
+import {
+  PaginationQuerySchema,
+  type PaginationQueryType,
+  PermissionIdParamSchema,
+  type PermissionIdParamType,
+} from 'src/shared/models/request.model'
+
 import { HTTPMethodSchema } from './permission-enum.model'
 
 // Create Permission Request Schema
@@ -32,27 +39,5 @@ export const UpdatePermissionBodySchema = z.object({
 
 export type UpdatePermissionBodyType = z.infer<typeof UpdatePermissionBodySchema>
 
-// Permission ID Param Schema
-export const PermissionIdParamSchema = z.object({
-  permissionId: z.string().regex(/^\d+$/, 'Permission ID must be a number').transform(Number),
-})
-
-export type PermissionIdParamType = z.infer<typeof PermissionIdParamSchema>
-
-// Pagination Query Schema
-export const PaginationQuerySchema = z.object({
-  page: z
-    .string()
-    .regex(/^\d+$/, 'Page must be a positive number')
-    .default('1')
-    .transform(Number)
-    .refine((val) => val >= 1, 'Page must be at least 1'),
-  limit: z
-    .string()
-    .regex(/^\d+$/, 'Limit must be a positive number')
-    .default('10')
-    .transform(Number)
-    .refine((val) => val >= 1 && val <= 100, 'Limit must be between 1 and 100'),
-})
-
-export type PaginationQueryType = z.infer<typeof PaginationQuerySchema>
+// Re-export shared schemas for backward compatibility
+export { PaginationQuerySchema, PermissionIdParamSchema, type PaginationQueryType, type PermissionIdParamType }
