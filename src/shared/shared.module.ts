@@ -12,6 +12,7 @@ import { APIKeyGuard } from './guards/api-key.guard'
 import { AuthenticationGuard } from './guards/authentication.guard'
 import { AuthorizationGuard } from './guards/authorization.guard'
 import { PermissionStrategy } from './guards/strategies/permission.strategy'
+import { SharedRoleRepository } from './repositories/shared-role.repo'
 import { TwoFactorAuthService } from './services/2fa.service'
 import { HashingService } from './services/hashing.service'
 import { PrismaService } from './services/prisma.service'
@@ -28,6 +29,7 @@ const sharedServices = [
   EmailService,
   TwoFactorAuthService,
   Temp2FAService,
+  SharedRoleRepository,
 ]
 
 @Global()

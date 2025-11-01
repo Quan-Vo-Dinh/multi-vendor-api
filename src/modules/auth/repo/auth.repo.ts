@@ -55,8 +55,11 @@ export class AuthRepository {
   findUniqueIncludeRole(
     uniqueObject: { id: number } | { email: string },
   ): Promise<(UserType & { role: RoleType }) | null> {
-    return this.prismaService.user.findUnique({
-      where: uniqueObject,
+    return this.prismaService.user.findFirst({
+      where: {
+        ...uniqueObject,
+        deletedAt: null,
+      },
       include: { role: true },
     })
   }
