@@ -18,6 +18,7 @@ import { MediaModule } from './modules/media/media.module'
 import { PermissionModule } from './modules/permission/permission.module'
 import { ProfileModule } from './modules/profile/profile.module'
 import { RoleModule } from './modules/role/role.module'
+import { UserModule } from './modules/user/user.module'
 import { SharedModule } from './shared/shared.module'
 
 @Module({
@@ -49,6 +50,7 @@ import { SharedModule } from './shared/shared.module'
     PermissionModule,
     RoleModule,
     ProfileModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [
