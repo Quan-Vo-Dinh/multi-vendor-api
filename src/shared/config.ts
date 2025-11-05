@@ -36,6 +36,12 @@ export const envSchema = z.object({
 
   // Email Service
   RESEND_API_KEY: z.string().min(1, { message: 'RESEND_API_KEY is required' }),
+
+  // Static URL Prefix
+  PREFIX_STATIC_URL: z
+    .string()
+    .url({ message: 'PREFIX_STATIC_URL must be a valid URL' })
+    .default('http://localhost:3000/media/static/'),
 })
 
 /**
