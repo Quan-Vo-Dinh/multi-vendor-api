@@ -42,6 +42,12 @@ export const envSchema = z.object({
     .string()
     .url({ message: 'PREFIX_STATIC_URL must be a valid URL' })
     .default('http://localhost:3000/media/static/'),
+
+  // S3 Configuration
+  S3_REGION: z.string().min(1, { message: 'S3_REGION is required' }),
+  S3_ACCESS_KEY: z.string().min(1, { message: 'S3_ACCESS_KEY is required' }),
+  S3_SECRET_ACCESS_KEY: z.string().min(1, { message: 'S3_SECRET_ACCESS_KEY is required' }),
+  S3_BUCKET_NAME: z.string().min(1, { message: 'S3_BUCKET_NAME is required' }),
 })
 
 /**

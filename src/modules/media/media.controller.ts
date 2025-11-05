@@ -20,6 +20,7 @@ import type { Response } from 'express'
 import { EnvConfig } from 'src/shared/config'
 import { UPLOAD_DIR } from 'src/shared/constants/other.constant'
 import { IsPublic } from 'src/shared/decorators/auth.decorator'
+import { S3Service } from 'src/shared/services/S3.service'
 
 import { MediaService } from './media.service'
 
@@ -32,6 +33,7 @@ export class MediaController {
   constructor(
     private readonly mediaService: MediaService,
     private readonly configService: ConfigService<EnvConfig>,
+    private readonly s3Service: S3Service,
   ) {
     this.prefixUrl = this.configService.get('PREFIX_STATIC_URL', { infer: true })!
   }
@@ -82,5 +84,11 @@ export class MediaController {
         res.status(notFound.getStatus()).send(notFound.getResponse())
       }
     })
+  }
+
+  @IsPublic()
+  @Get('s3-test/list-buckets')
+  async testS3Connection() {
+    return this.s3Service.testListBuckets()
   }
 }

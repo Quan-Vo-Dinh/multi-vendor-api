@@ -16,6 +16,7 @@ import { SharedRoleRepository } from './repositories/shared-role.repo'
 import { TwoFactorAuthService } from './services/2fa.service'
 import { HashingService } from './services/hashing.service'
 import { PrismaService } from './services/prisma.service'
+import { S3Service } from './services/S3.service'
 import { Temp2FAService } from './services/temp-2fa.service'
 import { TokenService } from './services/token.service'
 
@@ -30,6 +31,7 @@ const sharedServices = [
   TwoFactorAuthService,
   Temp2FAService,
   SharedRoleRepository,
+  S3Service,
 ]
 
 @Global()
