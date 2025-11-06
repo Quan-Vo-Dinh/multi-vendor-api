@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   MaxFileSizeValidator,
@@ -19,6 +20,12 @@ import { S3Service } from 'src/shared/services/S3.service'
 import { MediaService } from './media.service'
 
 const ALLOWED_IMAGE_TYPES = /^image\/(jpg|jpeg|png|gif|webp)$/
+
+interface CreatePresignedUrlDto {
+  originalName: string
+  contentType: string
+  fileSize: number
+}
 
 @Controller('media')
 export class MediaController {
@@ -82,6 +89,16 @@ export class MediaController {
     } catch (error) {
       throw new BadRequestException(`Upload failed: ${error.message}`)
     }
+  }
+
+  @IsPublic()
+  @Post('presigned-url')
+  async getPresignedUrl(@Body() createDto: CreatePresignedUrlDto) {
+    if (!createDto.originalName || !createDto.contentType || !createDto.fileSize) {
+      throw new BadRequestException('Missing required fields')
+    }
+
+    return this.s3Service.createPresignedUrl(createDto.originalName, createDto.contentType, createDto.fileSize)
   }
 
   @IsPublic()
