@@ -1,40 +1,24 @@
-import { existsSync, mkdirSync } from 'fs'
-
+// media.module.ts
 import { Module } from '@nestjs/common'
-import { MulterModule } from '@nestjs/platform-express'
-import multer from 'multer'
 
-import { UPLOAD_DIR } from 'src/shared/constants/other.constant'
-import { generateRandomFileName } from 'src/shared/helpers'
+import { S3Service } from 'src/shared/services/S3.service'
 
 import { MediaController } from './media.controller'
 import { MediaService } from './media.service'
-
-console.log('Upload directory:', UPLOAD_DIR)
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, UPLOAD_DIR)
-  },
-  filename: function (req, file, cb) {
-    const newFileName = generateRandomFileName(file.originalname)
-    cb(null, newFileName)
-  },
-})
+// S3Service đã được import ở AppModule (global) hoặc import ở đây
+// import { S3Service } from 'src/shared/services/S3.service'
 
 @Module({
   imports: [
-    MulterModule.register({
-      storage: storage,
-    }),
+    // BỎ HẾT MULTER CONFIG Ở ĐÂY
   ],
   controllers: [MediaController],
-  providers: [MediaService],
+  providers: [
+    MediaService,
+    S3Service, // Bỏ ở đây nếu S3Service đã là global
+  ],
 })
 export class MediaModule {
-  constructor() {
-    if (!existsSync(UPLOAD_DIR)) {
-      mkdirSync(UPLOAD_DIR, { recursive: true })
-    }
-  }
+  // Mày cũng không cần check 'existsSync' nữa vì mình đéo xài UPLOAD_DIR
+  constructor() {}
 }

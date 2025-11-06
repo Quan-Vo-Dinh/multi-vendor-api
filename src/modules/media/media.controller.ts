@@ -1,24 +1,18 @@
-import path from 'path'
-
 import {
   BadRequestException,
   Controller,
   Get,
   MaxFileSizeValidator,
-  NotFoundException,
-  Param,
   ParseFilePipe,
   Post,
-  Res,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { FilesInterceptor } from '@nestjs/platform-express'
-import type { Response } from 'express'
+import multer from 'multer'
 
 import { EnvConfig } from 'src/shared/config'
-import { UPLOAD_DIR } from 'src/shared/constants/other.constant'
 import { IsPublic } from 'src/shared/decorators/auth.decorator'
 import { S3Service } from 'src/shared/services/S3.service'
 
@@ -41,6 +35,7 @@ export class MediaController {
   @Post('images/upload')
   @UseInterceptors(
     FilesInterceptor('files', 4, {
+      storage: multer.memoryStorage(),
       limits: { fileSize: 5 * 1024 * 1024 },
       fileFilter: (req, file, callback) => {
         if (!ALLOWED_IMAGE_TYPES.test(file.mimetype)) {
@@ -51,7 +46,7 @@ export class MediaController {
       },
     }),
   )
-  uploadFile(
+  async uploadFile(
     @UploadedFiles(
       new ParseFilePipe({
         validators: [new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 })],
@@ -60,30 +55,33 @@ export class MediaController {
     files: Express.Multer.File[],
   ) {
     console.log(
-      'FILES RECEIVED:',
-      files.map((f) => ({ name: f.originalname, mimetype: f.mimetype })),
+      'FILES RECEIVED (IN MEMORY):',
+      files.map((f) => ({ name: f.originalname, size: f.size })),
     )
-    return {
-      message: 'Files uploaded successfully',
-      files: files.map((file) => ({
-        originalName: file.originalname,
-        filename: file.filename,
-        url: `${this.prefixUrl}${file.filename}`,
-        size: file.size,
-        mimetype: file.mimetype,
-      })),
-    }
-  }
 
-  @Get('static/:filename')
-  @IsPublic()
-  serveStaticFile(@Param('filename') filename: string, @Res() res: Response) {
-    return res.sendFile(path.resolve(UPLOAD_DIR, filename), (error) => {
-      if (error) {
-        const notFound = new NotFoundException('File not found')
-        res.status(notFound.getStatus()).send(notFound.getResponse())
+    try {
+      const dateFolder = new Date().toISOString().split('T')[0] // YYYY-MM-DD
+      const uploadDir = `images/${dateFolder}`
+
+      const uploadPromises = files.map((file) => {
+        return this.s3Service.uploadFile(file, uploadDir)
+      })
+
+      const results = await Promise.all(uploadPromises)
+
+      // 4. Trả về kết quả từ S3
+      return {
+        message: 'Files uploaded successfully to S3',
+        files: results.map((res, index) => ({
+          originalName: files[index].originalname,
+          key: res.key, // Tên file trên S3
+          url: res.url, // URL S3 công khai
+          mimetype: files[index].mimetype,
+        })),
       }
-    })
+    } catch (error) {
+      throw new BadRequestException(`Upload failed: ${error.message}`)
+    }
   }
 
   @IsPublic()

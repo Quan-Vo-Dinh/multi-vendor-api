@@ -1,6 +1,8 @@
 import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3'
+import { Upload } from '@aws-sdk/lib-storage'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { v4 as uuid } from 'uuid'
 
 import type { EnvConfig } from 'src/shared/config'
 
@@ -42,6 +44,37 @@ export class S3Service {
       console.error('❌ ERROR connecting to S3 or listing buckets:', error)
       // Inspect this error carefully — usually caused by wrong ACCESS_KEY, SECRET_KEY, or REGION
       throw new Error(`S3 connection error: ${error?.message ?? String(error)}`)
+    }
+  }
+
+  async uploadFile(file: Express.Multer.File, folder: string) {
+    const uniqueKey = `${folder}/${uuid()}-${file.originalname}`
+
+    // 2. Tạo đối tượng Upload
+    const upload = new Upload({
+      client: this.s3,
+      params: {
+        Bucket: this.S3_BUCKET_NAME,
+        Key: uniqueKey,
+        Body: file.buffer, // <--- DÙNG file.buffer từ RAM
+        ContentType: file.mimetype,
+        ACL: 'public-read', // Public để xem được
+      },
+    })
+
+    // 3. Thực thi
+    try {
+      console.log(`Uploading file: ${uniqueKey}...`)
+      const response = await upload.done()
+
+      return {
+        key: uniqueKey,
+        url: response.Location, // <--- ĐÂY LÀ URL S3
+        etag: response.ETag,
+      }
+    } catch (error) {
+      console.error(`❌ ERROR uploading file ${uniqueKey}:`, error)
+      throw new Error(`S3 upload error: ${error?.message ?? String(error)}`)
     }
   }
 
