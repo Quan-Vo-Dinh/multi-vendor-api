@@ -13,6 +13,7 @@ import CustomZodValidationPipe from 'src/shared/pipes/custom-zod-validation.pipe
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './modules/auth/auth.module'
+import { BrandModule } from './modules/brand/brand.module'
 import { LanguageModule } from './modules/language/language.module'
 import { MediaModule } from './modules/media/media.module'
 import { PermissionModule } from './modules/permission/permission.module'
@@ -45,6 +46,7 @@ import { SharedModule } from './shared/shared.module'
     }),
     SharedModule,
     AuthModule,
+    BrandModule,
     LanguageModule,
     MediaModule,
     PermissionModule,
