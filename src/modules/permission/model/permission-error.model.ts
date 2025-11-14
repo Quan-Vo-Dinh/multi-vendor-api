@@ -2,42 +2,42 @@ import { ConflictException, NotFoundException, UnprocessableEntityException } fr
 
 export const PermissionNotFoundException = new NotFoundException([
   {
-    message: 'Error.PermissionNotFound',
+    message: 'errors.PermissionNotFound',
     path: 'permissionId',
   },
 ])
 
 export const PermissionNameAlreadyExistsException = new ConflictException([
   {
-    message: 'Error.PermissionNameAlreadyExists',
+    message: 'errors.PermissionNameAlreadyExists',
     path: 'name',
   },
 ])
 
 export const PermissionPathMethodAlreadyExistsException = new ConflictException([
   {
-    message: 'Error.PermissionPathMethodAlreadyExists',
+    message: 'errors.PermissionPathMethodAlreadyExists',
     path: 'path',
   },
 ])
 
 export const PermissionNameRequiredException = new UnprocessableEntityException([
   {
-    message: 'Error.PermissionNameRequired',
+    message: 'errors.PermissionNameRequired',
     path: 'name',
   },
 ])
 
 export const PermissionPathRequiredException = new UnprocessableEntityException([
   {
-    message: 'Error.PermissionPathRequired',
+    message: 'errors.PermissionPathRequired',
     path: 'path',
   },
 ])
 
 export const PermissionMethodRequiredException = new UnprocessableEntityException([
   {
-    message: 'Error.PermissionMethodRequired',
+    message: 'errors.PermissionMethodRequired',
     path: 'method',
   },
 ])

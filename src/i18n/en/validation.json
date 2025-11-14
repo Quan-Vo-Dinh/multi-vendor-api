@@ -1,0 +1,11 @@
+{
+  "IsString": "The {property} must be a string",
+  "IsNumber": "The {property} must be a number",
+  "IsEmail": "The {property} must be a valid email",
+  "IsNotEmpty": "The {property} should not be empty",
+  "MinLength": "The {property} must be at least {min} characters long",
+  "MaxLength": "The {property} must be at most {max} characters long",
+  "IsEnum": "The {property} must be one of the following values: {values}",
+  "IsPositive": "The {property} must be a positive number",
+  "IsInt": "The {property} must be an integer"
+}

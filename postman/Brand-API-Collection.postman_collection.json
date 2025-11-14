@@ -1,0 +1,942 @@
+{
+  "info": {
+    "name": "Brand API - Multi Vendor",
+    "description": "Complete API collection for Brand and BrandTranslation management with i18n support",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "brand-api-collection",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "brandId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "brandTranslationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "language",
+      "value": "en",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Brand Management",
+      "item": [
+        {
+          "name": "Get All Brands",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brands?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page (default: 10, max: 100)"
+                },
+                {
+                  "key": "lang",
+                  "value": "vi",
+                  "description": "Language override (optional)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get paginated list of all brands with their translations"
+          },
+          "response": [
+            {
+              "name": "Success Response (English)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brands?page=1&limit=10",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands"],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Nike\",\n      \"logo\": \"https://example.com/nike.png\",\n      \"createdById\": 1,\n      \"updatedById\": 1,\n      \"createdAt\": \"2025-11-13T10:00:00Z\",\n      \"updatedAt\": \"2025-11-13T10:00:00Z\",\n      \"brandTranslations\": [\n        {\n          \"id\": 1,\n          \"brandId\": 1,\n          \"languageId\": \"en\",\n          \"name\": \"Nike\",\n          \"description\": \"Nike is a sports brand\",\n          \"createdById\": 1,\n          \"updatedById\": 1,\n          \"createdAt\": \"2025-11-13T10:00:00Z\",\n          \"updatedAt\": \"2025-11-13T10:00:00Z\"\n        }\n      ]\n    }\n  ],\n  \"meta\": {\n    \"totalItems\": 50,\n    \"currentPage\": 1,\n    \"totalPages\": 5,\n    \"itemsPerPage\": 10\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Brand by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{brandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "{{brandId}}"]
+            },
+            "description": "Get detailed information about a specific brand including all translations"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brands/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Nike\",\n    \"logo\": \"https://example.com/nike.png\",\n    \"createdById\": 1,\n    \"updatedById\": 1,\n    \"createdAt\": \"2025-11-13T10:00:00Z\",\n    \"updatedAt\": \"2025-11-13T10:00:00Z\",\n    \"brandTranslations\": [\n      {\n        \"id\": 1,\n        \"brandId\": 1,\n        \"languageId\": \"en\",\n        \"name\": \"Nike\",\n        \"description\": \"Nike is a sports brand\",\n        \"createdById\": 1,\n        \"updatedById\": 1,\n        \"createdAt\": \"2025-11-13T10:00:00Z\",\n        \"updatedAt\": \"2025-11-13T10:00:00Z\"\n      }\n    ]\n  }\n}"
+            },
+            {
+              "name": "Not Found (English)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brands/999",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "999"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"message\": \"Brand not found\",\n    \"path\": \"brandId\"\n  }\n]"
+            },
+            {
+              "name": "Not Found (Vietnamese)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brands/999",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "999"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"message\": \"Không tìm thấy thương hiệu\",\n    \"path\": \"brandId\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Create Brand",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('brandId', response.data.id);",
+                  "    console.log('Brand ID saved:', response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nike\",\n  \"logo\": \"https://example.com/nike.png\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/brands",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands"]
+            },
+            "description": "Create a new brand. The brandId will be automatically saved to collection variables."
+          },
+          "response": [
+            {
+              "name": "Created Successfully",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nike\",\n  \"logo\": \"https://example.com/nike.png\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Nike\",\n    \"logo\": \"https://example.com/nike.png\",\n    \"createdById\": 1,\n    \"updatedById\": 1,\n    \"createdAt\": \"2025-11-13T10:00:00Z\",\n    \"updatedAt\": \"2025-11-13T10:00:00Z\",\n    \"brandTranslations\": []\n  }\n}"
+            },
+            {
+              "name": "Name Conflict (English)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nike\",\n  \"logo\": \"https://example.com/nike.png\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"message\": \"Brand name already exists\",\n    \"path\": \"name\"\n  }\n]"
+            },
+            {
+              "name": "Name Conflict (Vietnamese)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nike\",\n  \"logo\": \"https://example.com/nike.png\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"message\": \"Tên thương hiệu đã tồn tại\",\n    \"path\": \"name\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Update Brand",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nike Updated\",\n  \"logo\": \"https://example.com/nike-new.png\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{brandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "{{brandId}}"]
+            },
+            "description": "Update brand information. You can update one or both fields (partial update supported)."
+          },
+          "response": [
+            {
+              "name": "Updated Successfully",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nike Updated\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Nike Updated\",\n    \"logo\": \"https://example.com/nike.png\",\n    \"createdById\": 1,\n    \"updatedById\": 1,\n    \"createdAt\": \"2025-11-13T10:00:00Z\",\n    \"updatedAt\": \"2025-11-13T12:00:00Z\",\n    \"brandTranslations\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Brand",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{brandId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "{{brandId}}"]
+            },
+            "description": "Soft delete a brand. The brand will be marked as deleted but not removed from database."
+          },
+          "response": [
+            {
+              "name": "Deleted Successfully (English)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brands/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Brand deleted successfully\"\n}"
+            },
+            {
+              "name": "Deleted Successfully (Vietnamese)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brands/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Xóa thương hiệu thành công\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "CRUD operations for Brand management"
+    },
+    {
+      "name": "Brand Translation Management",
+      "item": [
+        {
+          "name": "Create Brand Translation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('brandTranslationId', response.data.id);",
+                  "    console.log('Brand Translation ID saved:', response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"languageId\": \"en\",\n  \"name\": \"Nike\",\n  \"description\": \"Nike is a global sports brand\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/brands/{{brandId}}/translations",
+              "host": ["{{baseUrl}}"],
+              "path": ["brands", "{{brandId}}", "translations"]
+            },
+            "description": "Create a translation for a brand in a specific language"
+          },
+          "response": [
+            {
+              "name": "Created Successfully",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"languageId\": \"en\",\n  \"name\": \"Nike\",\n  \"description\": \"Nike is a global sports brand\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands/1/translations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "1", "translations"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"brandId\": 1,\n    \"languageId\": \"en\",\n    \"name\": \"Nike\",\n    \"description\": \"Nike is a global sports brand\",\n    \"createdById\": 1,\n    \"updatedById\": 1,\n    \"createdAt\": \"2025-11-13T13:00:00Z\",\n    \"updatedAt\": \"2025-11-13T13:00:00Z\"\n  }\n}"
+            },
+            {
+              "name": "Translation Conflict (English)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"languageId\": \"en\",\n  \"name\": \"Nike\",\n  \"description\": \"Duplicate translation\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands/1/translations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "1", "translations"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"message\": \"A translation for this language already exists\",\n    \"path\": \"languageId\"\n  }\n]"
+            },
+            {
+              "name": "Translation Conflict (Vietnamese)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"languageId\": \"en\",\n  \"name\": \"Nike\",\n  \"description\": \"Duplicate translation\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands/1/translations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "1", "translations"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "[\n  {\n    \"message\": \"Bản dịch cho ngôn ngữ này đã tồn tại\",\n    \"path\": \"languageId\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Brand Translation by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brand-translations/{{brandTranslationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["brand-translations", "{{brandTranslationId}}"]
+            },
+            "description": "Get detailed information about a specific brand translation"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/brand-translations/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brand-translations", "1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"brandId\": 1,\n    \"languageId\": \"en\",\n    \"name\": \"Nike\",\n    \"description\": \"Nike is a global sports brand\",\n    \"createdById\": 1,\n    \"updatedById\": 1,\n    \"createdAt\": \"2025-11-13T13:00:00Z\",\n    \"updatedAt\": \"2025-11-13T13:00:00Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Brand Translation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nike Updated\",\n  \"description\": \"Nike is an updated global sports brand\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/brand-translations/{{brandTranslationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["brand-translations", "{{brandTranslationId}}"]
+            },
+            "description": "Update brand translation content. Partial update supported."
+          },
+          "response": [
+            {
+              "name": "Updated Successfully",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"Updated description only\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brand-translations/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brand-translations", "1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"brandId\": 1,\n    \"languageId\": \"en\",\n    \"name\": \"Nike\",\n    \"description\": \"Updated description only\",\n    \"createdById\": 1,\n    \"updatedById\": 1,\n    \"createdAt\": \"2025-11-13T13:00:00Z\",\n    \"updatedAt\": \"2025-11-13T14:00:00Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Brand Translation",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "{{language}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/brand-translations/{{brandTranslationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["brand-translations", "{{brandTranslationId}}"]
+            },
+            "description": "Soft delete a brand translation"
+          },
+          "response": [
+            {
+              "name": "Deleted Successfully (English)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brand-translations/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brand-translations", "1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Brand translation deleted successfully\"\n}"
+            },
+            {
+              "name": "Deleted Successfully (Vietnamese)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brand-translations/1",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brand-translations", "1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"Xóa bản dịch thương hiệu thành công\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Manage translations for brands in different languages"
+    },
+    {
+      "name": "Testing Scenarios",
+      "item": [
+        {
+          "name": "Scenario 1 - Create Brand with Translations",
+          "item": [
+            {
+              "name": "1. Create Brand",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Adidas\",\n  \"logo\": \"https://example.com/adidas.png\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands"]
+                }
+              }
+            },
+            {
+              "name": "2. Add English Translation",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"languageId\": \"en\",\n  \"name\": \"Adidas\",\n  \"description\": \"Adidas is a German multinational corporation\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands/{{brandId}}/translations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "{{brandId}}", "translations"]
+                }
+              }
+            },
+            {
+              "name": "3. Add Vietnamese Translation",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"languageId\": \"vi\",\n  \"name\": \"Adidas\",\n  \"description\": \"Adidas là một tập đoàn đa quốc gia của Đức\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands/{{brandId}}/translations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "{{brandId}}", "translations"]
+                }
+              }
+            },
+            {
+              "name": "4. Get Brand with All Translations",
+              "request": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{baseUrl}}/brands/{{brandId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "{{brandId}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scenario 2 - Test i18n (English vs Vietnamese)",
+          "item": [
+            {
+              "name": "Get Non-existent Brand (English)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brands/9999",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "9999"]
+                }
+              }
+            },
+            {
+              "name": "Get Non-existent Brand (Vietnamese)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/brands/9999",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands", "9999"]
+                }
+              }
+            },
+            {
+              "name": "Create Duplicate Brand (English)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nike\",\n  \"logo\": \"https://example.com/nike.png\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands"]
+                }
+              }
+            },
+            {
+              "name": "Create Duplicate Brand (Vietnamese)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "vi"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Nike\",\n  \"logo\": \"https://example.com/nike.png\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/brands",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["brands"]
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Pre-configured test scenarios for common use cases"
+    }
+  ]
+}

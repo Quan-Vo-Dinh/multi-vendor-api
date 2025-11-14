@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import type { Prisma } from '@prisma/client'
+import { I18nService } from 'nestjs-i18n'
 
+import type { I18nTranslations } from 'src/generated/types/i18n.generated'
 import {
   AdminProtectionException,
   RoleNotFoundException,
@@ -26,6 +28,7 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly hashingService: HashingService,
+    private readonly i18n: I18nService<I18nTranslations>,
   ) {}
 
   // Helper: Kiểm tra role có phải là Admin không
@@ -199,7 +202,7 @@ export class UserService {
     await this.userRepository.softDelete(userId, currentUserId)
 
     return {
-      message: 'User deleted successfully',
+      message: this.i18n.t('common.UserDeletedSuccessfully'),
     }
   }
 }

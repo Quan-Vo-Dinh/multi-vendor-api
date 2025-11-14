@@ -1,0 +1,11 @@
+{
+  "IsString": "{property} phải là chuỗi ký tự",
+  "IsNumber": "{property} phải là số",
+  "IsEmail": "{property} phải là email hợp lệ",
+  "IsNotEmpty": "{property} không được để trống",
+  "MinLength": "{property} phải có ít nhất {min} ký tự",
+  "MaxLength": "{property} phải có tối đa {max} ký tự",
+  "IsEnum": "{property} phải là một trong các giá trị sau: {values}",
+  "IsPositive": "{property} phải là số dương",
+  "IsInt": "{property} phải là số nguyên"
+}

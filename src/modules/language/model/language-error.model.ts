@@ -2,28 +2,28 @@ import { ConflictException, NotFoundException, UnprocessableEntityException } fr
 
 export const LanguageNotFoundException = new NotFoundException([
   {
-    message: 'Error.LanguageNotFound',
+    message: 'errors.LanguageNotFound',
     path: 'languageId',
   },
 ])
 
 export const LanguageIdAlreadyExistsException = new ConflictException([
   {
-    message: 'Error.LanguageIdAlreadyExists',
+    message: 'errors.LanguageIdAlreadyExists',
     path: 'id',
   },
 ])
 
 export const LanguageIdRequiredException = new UnprocessableEntityException([
   {
-    message: 'Error.LanguageIdRequired',
+    message: 'errors.LanguageIdRequired',
     path: 'id',
   },
 ])
 
 export const LanguageNameRequiredException = new UnprocessableEntityException([
   {
-    message: 'Error.LanguageNameRequired',
+    message: 'errors.LanguageNameRequired',
     path: 'name',
   },
 ])

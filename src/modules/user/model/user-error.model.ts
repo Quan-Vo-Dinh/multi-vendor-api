@@ -2,35 +2,35 @@ import { BadRequestException, ForbiddenException, NotFoundException } from '@nes
 
 export const UserNotFoundException = new NotFoundException([
   {
-    message: 'Error.UserNotFound',
+    message: 'errors.UserNotFound',
     path: 'userId',
   },
 ])
 
 export const UserEmailConflictException = new BadRequestException([
   {
-    message: 'Error.UserEmailAlreadyExists',
+    message: 'errors.UserEmailAlreadyExists',
     path: 'email',
   },
 ])
 
 export const RoleNotFoundException = new NotFoundException([
   {
-    message: 'Error.RoleNotFound',
+    message: 'errors.RoleNotFound',
     path: 'roleId',
   },
 ])
 
 export const AdminProtectionException = new ForbiddenException([
   {
-    message: 'Error.OnlyAdminCanManageAdminRole',
+    message: 'errors.OnlyAdminCanManageAdminRole',
     path: 'roleId',
   },
 ])
 
 export const SelfActionForbiddenException = new ForbiddenException([
   {
-    message: 'Error.CannotPerformActionOnYourself',
+    message: 'errors.CannotPerformActionOnYourself',
     path: 'userId',
   },
 ])

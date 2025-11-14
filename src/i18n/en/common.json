@@ -1,0 +1,8 @@
+{
+  "UserDeletedSuccessfully": "User deleted successfully",
+  "RoleDeletedSuccessfully": "Role deleted successfully",
+  "PermissionDeletedSuccessfully": "Permission deleted successfully",
+  "BrandDeletedSuccessfully": "Brand deleted successfully",
+  "BrandTranslationDeletedSuccessfully": "Brand translation deleted successfully",
+  "LanguageDeletedSuccessfully": "Language deleted successfully"
+}

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { I18nService } from 'nestjs-i18n'
 
+import type { I18nTranslations } from 'src/generated/types/i18n.generated'
 import { RoleName } from 'src/shared/constants/role.constant'
 
 import {
@@ -21,7 +23,10 @@ import { RoleRepository } from './repo/role.repo'
 
 @Injectable()
 export class RoleService {
-  constructor(private readonly roleRepository: RoleRepository) {}
+  constructor(
+    private readonly roleRepository: RoleRepository,
+    private readonly i18n: I18nService<I18nTranslations>,
+  ) {}
 
   async findAll(query: PaginationQueryType): Promise<GetAllRolesResType> {
     const { page, limit } = query
@@ -159,7 +164,7 @@ export class RoleService {
     await this.roleRepository.softDelete(roleId, userId)
 
     return {
-      message: 'Role deleted successfully',
+      message: this.i18n.t('common.RoleDeletedSuccessfully'),
     }
   }
 }

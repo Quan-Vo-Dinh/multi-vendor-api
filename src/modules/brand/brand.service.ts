@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import type { Prisma } from '@prisma/client'
+import { I18nService } from 'nestjs-i18n'
 
+import type { I18nTranslations } from 'src/generated/types/i18n.generated'
 import {
   BrandNameConflictException,
   BrandNotFoundException,
@@ -33,6 +35,7 @@ export class BrandService {
   constructor(
     private readonly brandRepository: BrandRepository,
     private readonly brandTranslationRepository: BrandTranslationRepository,
+    private readonly i18n: I18nService<I18nTranslations>,
   ) {}
 
   // ==================== Brand Methods ====================
@@ -122,7 +125,7 @@ export class BrandService {
     await this.brandRepository.softDelete(brandId, currentUserId)
 
     return {
-      message: 'Brand deleted successfully',
+      message: this.i18n.t('common.BrandDeletedSuccessfully'),
     }
   }
 
@@ -217,7 +220,7 @@ export class BrandService {
     await this.brandTranslationRepository.softDelete(brandTranslationId, currentUserId)
 
     return {
-      message: 'Brand translation deleted successfully',
+      message: this.i18n.t('common.BrandTranslationDeletedSuccessfully'),
     }
   }
 }

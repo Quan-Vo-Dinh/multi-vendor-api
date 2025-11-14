@@ -1,13 +1,17 @@
+import * as path from 'path'
+
 import KeyvRedis from '@keyv/redis'
 import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n'
 import { ZodSerializerInterceptor } from 'nestjs-zod'
 
 import { validateEnv } from 'src/shared/config'
 import { CatchEverythingFilter } from 'src/shared/filter/catch-everything.filter'
 import { HttpExceptionFilter } from 'src/shared/filter/http-exception.filter'
+import { I18nExceptionFilter } from 'src/shared/filter/i18n-exception.filter'
 import CustomZodValidationPipe from 'src/shared/pipes/custom-zod-validation.pipe'
 
 import { AppController } from './app.controller'
@@ -44,6 +48,15 @@ import { SharedModule } from './shared/shared.module'
         }
       },
     }),
+    I18nModule.forRoot({
+      fallbackLanguage: 'en',
+      loaderOptions: {
+        path: path.join(__dirname, '..', 'i18n'),
+        watch: true,
+      },
+      typesOutputPath: path.resolve('src/generated/types/i18n.generated.ts'),
+      resolvers: [{ use: QueryResolver, options: ['lang'] }, AcceptLanguageResolver, new HeaderResolver(['x-lang'])],
+    }),
     SharedModule,
     AuthModule,
     BrandModule,
@@ -62,6 +75,10 @@ import { SharedModule } from './shared/shared.module'
       useClass: CustomZodValidationPipe,
     },
     { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },
+    {
+      provide: APP_FILTER,
+      useClass: I18nExceptionFilter,
+    },
     {
       provide: APP_FILTER, // show lỗi khi nó serialize bị lỗi
       useClass: HttpExceptionFilter,

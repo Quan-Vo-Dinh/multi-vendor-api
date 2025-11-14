@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { I18nService } from 'nestjs-i18n'
+
+import type { I18nTranslations } from 'src/generated/types/i18n.generated'
 
 import { LanguageIdAlreadyExistsException, LanguageNotFoundException } from './model/language-error.model'
 import type { CreateLanguageBodyType, UpdateLanguageBodyType } from './model/language-request.model'
@@ -13,7 +16,10 @@ import { LanguageRepository } from './repo/language.repo'
 
 @Injectable()
 export class LanguageService {
-  constructor(private readonly languageRepository: LanguageRepository) {}
+  constructor(
+    private readonly languageRepository: LanguageRepository,
+    private readonly i18n: I18nService<I18nTranslations>,
+  ) {}
 
   async findAll(): Promise<GetAllLanguagesResType> {
     const languages = await this.languageRepository.findAll()
@@ -88,7 +94,7 @@ export class LanguageService {
     await this.languageRepository.delete(languageId)
 
     return {
-      message: 'Language deleted successfully',
+      message: this.i18n.t('common.LanguageDeletedSuccessfully'),
     }
   }
 }

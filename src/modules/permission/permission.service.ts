@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
+import { I18nService } from 'nestjs-i18n'
+
+import type { I18nTranslations } from 'src/generated/types/i18n.generated'
 
 import { PermissionNotFoundException, PermissionPathMethodAlreadyExistsException } from './model/permission-error.model'
 import type {
@@ -17,7 +20,10 @@ import { PermissionRepository } from './repo/permission.repo'
 
 @Injectable()
 export class PermissionService {
-  constructor(private readonly permissionRepository: PermissionRepository) {}
+  constructor(
+    private readonly permissionRepository: PermissionRepository,
+    private readonly i18n: I18nService<I18nTranslations>,
+  ) {}
 
   async findAll(query: PaginationQueryType): Promise<GetAllPermissionsResType> {
     const { page, limit } = query
@@ -125,7 +131,7 @@ export class PermissionService {
     await this.permissionRepository.softDelete(permissionId, userId)
 
     return {
-      message: 'Permission deleted successfully',
+      message: this.i18n.t('common.PermissionDeletedSuccessfully'),
     }
   }
 }

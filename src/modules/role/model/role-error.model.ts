@@ -2,42 +2,42 @@ import { ConflictException, ForbiddenException, NotFoundException, Unprocessable
 
 export const RoleNotFoundException = new NotFoundException([
   {
-    message: 'Error.RoleNotFound',
+    message: 'errors.RoleNotFound',
     path: 'roleId',
   },
 ])
 
 export const RoleNameAlreadyExistsException = new ConflictException([
   {
-    message: 'Error.RoleNameAlreadyExists',
+    message: 'errors.RoleNameAlreadyExists',
     path: 'name',
   },
 ])
 
 export const RoleNameRequiredException = new UnprocessableEntityException([
   {
-    message: 'Error.RoleNameRequired',
+    message: 'errors.RoleNameRequired',
     path: 'name',
   },
 ])
 
 export const InvalidPermissionIdsException = new UnprocessableEntityException([
   {
-    message: 'Error.InvalidPermissionIds',
+    message: 'errors.InvalidPermissionIds',
     path: 'permissionIds',
   },
 ])
 
 export const ProhibitedRoleDeletionException = new ForbiddenException([
   {
-    message: 'Error.ProhibitedRoleDeletion',
+    message: 'errors.ProhibitedRoleDeletion',
     path: 'roleId',
   },
 ])
 
 export const ProhibitedRoleUpdateException = new ForbiddenException([
   {
-    message: 'Error.ProhibitedRoleUpdate',
+    message: 'errors.ProhibitedRoleUpdate',
     path: 'roleId',
   },
 ])
