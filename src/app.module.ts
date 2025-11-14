@@ -10,7 +10,7 @@ import { ZodSerializerInterceptor } from 'nestjs-zod'
 
 import { validateEnv } from 'src/shared/config'
 import { CatchEverythingFilter } from 'src/shared/filter/catch-everything.filter'
-import { HttpExceptionFilter } from 'src/shared/filter/http-exception.filter'
+// import { HttpExceptionFilter } from 'src/shared/filter/http-exception.filter'
 import { I18nExceptionFilter } from 'src/shared/filter/i18n-exception.filter'
 import CustomZodValidationPipe from 'src/shared/pipes/custom-zod-validation.pipe'
 
@@ -51,7 +51,7 @@ import { SharedModule } from './shared/shared.module'
     I18nModule.forRoot({
       fallbackLanguage: 'en',
       loaderOptions: {
-        path: path.join(__dirname, '..', 'i18n'),
+        path: path.resolve('src/i18n'),
         watch: true,
       },
       typesOutputPath: path.resolve('src/generated/types/i18n.generated.ts'),
@@ -77,15 +77,17 @@ import { SharedModule } from './shared/shared.module'
     { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },
     {
       provide: APP_FILTER,
-      useClass: I18nExceptionFilter,
+      useClass: CatchEverythingFilter,
     },
-    {
-      provide: APP_FILTER, // show lỗi khi nó serialize bị lỗi
-      useClass: HttpExceptionFilter,
-    },
+    // Note: HttpExceptionFilter logs ZodSerializationException errors (keep for debugging)
+    // Comment lại để không chặn I18nExceptionFilter (chỉ sử dụng khi cần debug)
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: HttpExceptionFilter,
+    // },
     {
       provide: APP_FILTER,
-      useClass: CatchEverythingFilter,
+      useClass: I18nExceptionFilter,
     },
   ],
 })

@@ -18,11 +18,20 @@ export class I18nExceptionFilter implements ExceptionFilter {
 
     const exceptionResponse = exception.getResponse()
 
+    // Debug logging
+    console.log('🔍 I18nExceptionFilter Debug:')
+    console.log('  - i18n context:', i18n ? 'EXISTS' : 'NULL')
+    console.log('  - current lang:', i18n?.lang)
+    console.log('  - exception response:', JSON.stringify(exceptionResponse))
+
     // Helper function to translate error messages
     const translateMessage = (message: string): string => {
       if (message && message.startsWith('errors.')) {
         const key = message.replace('errors.', '')
-        return i18n ? i18n.t(`errors.${key}`) : message
+        console.log(`  - Translating key: errors.${key}`)
+        const translated = i18n ? i18n.t(`errors.${key}`) : message
+        console.log(`  - Translated to: ${translated}`)
+        return translated
       }
       return message
     }
